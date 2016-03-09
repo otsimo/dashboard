@@ -11,8 +11,7 @@ import (
 const (
 	MongoDBDriverName string = "mongodb"
 	mongoURLFlag      string = "mongodb-url"
-
-	CatalogCollection string = "Catalog"
+	CatalogCollection string = "Dashboard"
 )
 
 func init() {
