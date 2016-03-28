@@ -14,6 +14,30 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/adjust/bufio",
+			"repository": "https://github.com/adjust/bufio",
+			"revision": "fe7b595919dec00e50dd74eda9aa8c697856fe91",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/adjust/redis",
+			"repository": "https://github.com/adjust/redis",
+			"revision": "d3df8da3a5f49a49cc5ff90768bdd9d7c2f06a8a",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/adjust/rmq",
+			"repository": "https://github.com/adjust/rmq",
+			"revision": "084a396f473131326e60c0b731e99b9e76210623",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/adjust/uniuri",
+			"repository": "https://github.com/adjust/uniuri",
+			"revision": "498743145e60c272b71d377c4e456335e4ef7524",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/bgentry/speakeasy",
 			"repository": "https://github.com/bgentry/speakeasy",
 			"revision": "36e9cfdd690967f4f690c6edcc9ffacd006014a0",

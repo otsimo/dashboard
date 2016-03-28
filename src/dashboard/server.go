@@ -3,6 +3,7 @@ package dashboard
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"os"
@@ -137,7 +138,7 @@ func NewOauthAccess(tm *ClientCredsTokenManager) oauthAccess {
 
 func (oa *oauthAccess) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
 	return map[string]string{
-		"Authorization": "Bearer" + " " + oa.tm.Token.Encode(),
+		"Authorization": fmt.Sprintf("Bearer %s", oa.tm.Token.Encode()),
 	}, nil
 }
 

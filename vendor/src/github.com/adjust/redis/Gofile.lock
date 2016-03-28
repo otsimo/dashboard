@@ -1,0 +1,27 @@
+{
+	"env": [
+		{
+			"name": "development",
+			"packages": [
+				{
+					"Name": "github.com/adjust/bufio",
+					"Branch": "master"
+				},
+				{
+					"Name": "github.com/adjust/redis",
+					"Branch": "upstream"
+				},
+				{
+					"Name": "github.com/onsi/ginkgo",
+					"Branch": "master"
+				},
+				{
+					"Name": "github.com/onsi/gomega",
+					"Branch": "master"
+				}
+			]
+		}
+	],
+	"testdir": "",
+	"mirror": ""
+}

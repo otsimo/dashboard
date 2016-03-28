@@ -59,7 +59,6 @@ func NewOIDCClient(cfg oidc.ClientConfig) (*Client, error) {
 		c.scope = make([]string, len(oidc.DefaultScope))
 		copy(c.scope, oidc.DefaultScope)
 	}
-
 	return &c, nil
 }
 
