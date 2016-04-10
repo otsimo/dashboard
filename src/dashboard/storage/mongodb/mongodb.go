@@ -1,7 +1,7 @@
 package mongodb
 
 import (
-	"storage"
+	"dashboard/storage"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
@@ -11,7 +11,6 @@ import (
 const (
 	MongoDBDriverName string = "mongodb"
 	mongoURLFlag      string = "mongodb-url"
-	CatalogCollection string = "Dashboard"
 )
 
 func init() {
