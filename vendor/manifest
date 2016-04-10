@@ -44,6 +44,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/cloudfoundry-incubator/candiedyaml",
+			"repository": "https://github.com/cloudfoundry-incubator/candiedyaml",
+			"revision": "5cef21e2e4f0fd147973b558d4db7395176bcd95",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/codegangsta/cli",
 			"repository": "https://github.com/codegangsta/cli",
 			"revision": "71f57d300dd6a780ac1856c005c4b518cfd498ec",
@@ -118,6 +124,18 @@
 			"revision": "1914e367e85eaf0c25d495b48e060dfe6190f8d0",
 			"branch": "master",
 			"path": "/timeutil"
+		},
+		{
+			"importpath": "github.com/fsnotify/fsnotify",
+			"repository": "https://github.com/fsnotify/fsnotify",
+			"revision": "3c39c22b2c7b0516d5f2553f1608e5d13cb19053",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/ghodss/yaml",
+			"repository": "https://github.com/ghodss/yaml",
+			"revision": "1a6f069841556a7bcaff4a397ca6e8328d266c2f",
+			"branch": "master"
 		},
 		{
 			"importpath": "github.com/gogo/protobuf/gogoproto",
