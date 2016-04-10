@@ -17,6 +17,7 @@ import (
 	"github.com/coreos/go-oidc/oidc"
 	"github.com/coreos/pkg/timeutil"
 	"github.com/jonboulle/clockwork"
+	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -440,6 +441,10 @@ func (tm *ClientCredsTokenManager) Run() chan struct{} {
 	}()
 
 	return stop
+}
+
+func (tm *ClientCredsTokenManager) Credentials() credentials.Credentials {
+	return NewOauthAccess(tm)
 }
 
 func (tm *ClientCredsTokenManager) fetchToken() (time.Duration, error) {

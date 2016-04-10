@@ -7,17 +7,15 @@ const (
 )
 
 type Config struct {
-	Debug              bool
-	GrpcPort           int
-	TlsCertFile        string
-	TlsKeyFile         string
-	ClientID           string
-	ClientSecret       string
-	TrustedCAFile      string
-	AuthDiscovery      string
-	AnalysisServiceURL string
-	ApiServiceURL      string
-	RegistryServiceURL string
+	Debug         bool
+	GrpcPort      int
+	TlsCertFile   string
+	TlsKeyFile    string
+	ClientID      string
+	ClientSecret  string
+	TrustedCAFile string
+	AuthDiscovery string
+	ConfigPath    string
 }
 
 func (c *Config) GetGrpcPortString() string {
