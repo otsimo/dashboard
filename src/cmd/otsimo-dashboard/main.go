@@ -25,6 +25,8 @@ func RunAction(c *cli.Context) {
 	config.ClientSecret = c.String("client-secret")
 	config.AuthDiscovery = c.String("discovery")
 	config.ConfigPath = c.String("config-path")
+	config.WatchConfigFile = c.Bool("watch-config")
+	config.NoAuth = c.Bool("no-auth")
 
 	if config.Debug {
 		log.SetLevel(log.DebugLevel)
@@ -50,7 +52,7 @@ func RunAction(c *cli.Context) {
 	}
 
 	server := dashboard.NewServer(config, s)
-	server.ListenGRPC()
+	server.Listen()
 }
 
 func withEnvs(prefix string, flags []cli.Flag) []cli.Flag {
@@ -91,13 +93,14 @@ func main() {
 		cli.StringFlag{Name: "client-secret", Value: "", Usage: "client secret"},
 		cli.StringFlag{Name: "discovery", Value: "https://connect.otsimo.com", Usage: "auth discovery url"},
 		cli.StringFlag{Name: "config-path", Value: "config.yaml", Usage: "config file path"},
+		cli.BoolFlag{Name: "debug, d", Usage: "enable verbose log"},
+		cli.BoolFlag{Name: "watch-config", Usage: "watch configuration file for changes"},
+		cli.BoolFlag{Name: "no-auth", Usage: "do not try to get an access token"},
 	}
 	flags = withEnvs("OTSIMO_DASHBOARD", flags)
 	for _, d := range dnames {
 		flags = append(flags, storage.GetDriver(d).Flags...)
 	}
-
-	flags = append(flags, cli.BoolFlag{Name: "debug, d", Usage: "enable verbose log", EnvVar: "OTSIMO_CATALOG_DEBUG"})
 	app.Flags = flags
 	app.Action = RunAction
 
