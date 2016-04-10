@@ -1,0 +1,11 @@
+providers:
+  - name: analytics
+    url: analytics-agent.default:18863
+    score: 1.2
+    insecure: true
+    auth: false
+  - name: news
+    url: news-provider.default.18866
+    score: 2
+    insecure: true
+    auth: false

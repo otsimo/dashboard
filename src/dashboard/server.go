@@ -7,20 +7,30 @@ import (
 	"io/ioutil"
 	"net"
 
+	"encoding/json"
+	"errors"
+	"path/filepath"
+
 	log "github.com/Sirupsen/logrus"
+	"github.com/ghodss/yaml"
 	pb "github.com/otsimo/otsimopb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
 
+var (
+	roots *x509.CertPool
+)
+
 type Server struct {
-	Config       *Config
+	Config       *CommandConfig
 	Storage      storage.Driver
 	Client       *Client
 	TokenManager *ClientCredsTokenManager
+	sc           *ServiceConfig
 }
 
-func (s *Server) ListenGRPC() {
+func (s *Server) Listen() {
 	grpcPort := s.Config.GetGrpcPortString()
 	//Listen
 	lis, err := net.Listen("tcp", grpcPort)
@@ -37,24 +47,23 @@ func (s *Server) ListenGRPC() {
 	}
 	grpcServer := grpc.NewServer(opts...)
 
-	dashboard := &dashboardGrpcService{
-		server: s,
-	}
-
-	pb.RegisterDashboardServiceServer(grpcServer, dashboard)
+	pb.RegisterDashboardServiceServer(grpcServer, s)
 	log.Infof("server.go: Binding %s for grpc", grpcPort)
 	//Serve
 	grpcServer.Serve(lis)
 }
 
-func NewServer(config *Config, driver storage.Driver) *Server {
+func NewServer(config *CommandConfig, driver storage.Driver) *Server {
+	sc, err := readConfig(config.ConfigPath)
+	if err != nil {
+		panic(err)
+	}
 	server := &Server{
 		Config:  config,
 		Storage: driver,
+		sc:      sc,
 	}
-	log.Debugln("Creating new oidc client discovery=", config.AuthDiscovery)
 	var tlsConfig tls.Config
-	var roots *x509.CertPool
 	if config.TrustedCAFile != "" {
 		roots = x509.NewCertPool()
 		pemBlock, err := ioutil.ReadFile(config.TrustedCAFile)
@@ -64,19 +73,35 @@ func NewServer(config *Config, driver storage.Driver) *Server {
 		roots.AppendCertsFromPEM(pemBlock)
 		tlsConfig.RootCAs = roots
 	}
-	client, tokenMan := NewClient(config.ClientID, config.ClientSecret, config.AuthDiscovery, "", &tlsConfig)
-	server.Client = client
-	server.TokenManager = tokenMan
-
-	jwtCreds := NewOauthAccess(tokenMan)
-
-	var opts []grpc.DialOption
-	if roots != nil {
-		opts = append(opts, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(roots, "")))
-	} else {
-		jwtCreds.RequireTLS = false
-		opts = append(opts, grpc.WithInsecure())
+	if config.NoAuth {
+		log.Debugln("Creating new oidc client, discovery=", config.AuthDiscovery)
+		client, tokenMan := NewClient(config.ClientID, config.ClientSecret, config.AuthDiscovery, "", &tlsConfig)
+		server.Client = client
+		server.TokenManager = tokenMan
 	}
-	opts = append(opts, grpc.WithPerRPCCredentials(&jwtCreds))
+	if config.WatchConfigFile {
+		go watchFile(config.ConfigPath)
+	}
 	return server
+}
+
+func readConfig(configPath string) (*ServiceConfig, error) {
+	data, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		log.Errorf("failed to read configuration file, %#v", err)
+		return nil, err
+	}
+	desc := &ServiceConfig{}
+	if filepath.Ext(configPath) == ".yaml" || filepath.Ext(configPath) == ".yml" {
+		err = yaml.Unmarshal(data, desc)
+	} else if filepath.Ext(configPath) == ".json" {
+		err = json.Unmarshal(data, desc)
+	} else {
+		err = errors.New("unknwon data format")
+	}
+	if err != nil {
+		log.Errorf("failed to unmarshal configuration file, %#v", err)
+		return nil, err
+	}
+	return desc, nil
 }
