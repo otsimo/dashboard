@@ -2,14 +2,15 @@ package main
 
 import (
 	"dashboard"
+	"dashboard/storage"
+	_ "dashboard/storage/mongodb"
 	"fmt"
 	"os"
-	"storage"
-	_ "storage/mongodb"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
+	"google.golang.org/grpc/grpclog"
 )
 
 var Version string = "DEV"
@@ -23,9 +24,7 @@ func RunAction(c *cli.Context) {
 	config.ClientID = c.String("client-id")
 	config.ClientSecret = c.String("client-secret")
 	config.AuthDiscovery = c.String("discovery")
-	config.AnalysisServiceURL = c.String("analysis-service")
-	config.ApiServiceURL = c.String("api-service")
-	config.RegistryServiceURL = c.String("registry-service")
+	config.ConfigPath = c.String("config-path")
 
 	if config.Debug {
 		log.SetLevel(log.DebugLevel)
@@ -91,9 +90,7 @@ func main() {
 		cli.StringFlag{Name: "client-id", Value: "", Usage: "client id"},
 		cli.StringFlag{Name: "client-secret", Value: "", Usage: "client secret"},
 		cli.StringFlag{Name: "discovery", Value: "https://connect.otsimo.com", Usage: "auth discovery url"},
-		cli.StringFlag{Name: "api-service", Value: "https://api.otsimo.com", Usage: "api service url"},
-		cli.StringFlag{Name: "analysis-service", Value: "https://analysis.otsimo.com", Usage: "analysis service url"},
-		cli.StringFlag{Name: "registry-service", Value: "https://registry.otsimo.com", Usage: "registry service url"},
+		cli.StringFlag{Name: "config-path", Value: "config.yaml", Usage: "config file path"},
 	}
 	flags = withEnvs("OTSIMO_DASHBOARD", flags)
 	for _, d := range dnames {
@@ -112,4 +109,11 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.InfoLevel)
+	var l = &log.Logger{
+		Out:       os.Stdout,
+		Formatter: &log.TextFormatter{FullTimestamp: true},
+		Hooks:     make(log.LevelHooks),
+		Level:     log.GetLevel(),
+	}
+	grpclog.SetLogger(l)
 }
