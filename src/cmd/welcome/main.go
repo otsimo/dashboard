@@ -26,6 +26,7 @@ func ReadTemplates() {
 func RunAction(c *cli.Context) {
 	config.Debug = c.Bool("debug")
 	config.GrpcPort = c.Int("grpc-port")
+	config.AuthDiscovery = c.Int("discovery")
 	config.TlsCertFile = c.String("tls-cert-file")
 	config.TlsKeyFile = c.String("tls-key-file")
 	config.ApiServiceURL = c.String("api-service")
