@@ -32,6 +32,8 @@ func RunAction(c *cli.Context) {
 	config.ApiServiceURL = c.String("api-service")
 	config.ApiConnectMode = c.String("api-connect-mode")
 	config.TemplatesPath = c.String("templates-path")
+	config.ClientID = c.String("client-id")
+	config.ClientSecret = c.String("client-secret")
 
 	if config.Debug {
 		log.SetLevel(log.DebugLevel)
