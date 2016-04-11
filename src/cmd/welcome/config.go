@@ -13,15 +13,21 @@ const (
 )
 
 type Config struct {
-	Debug         bool
-	GrpcPort      int
-	TlsCertFile   string
-	TlsKeyFile    string
-	ClientID      string
-	ClientSecret  string
-	TrustedCAFile string
-	AuthDiscovery string
-	ApiServiceURL string
+	Debug          bool
+	GrpcPort       int
+	TlsCertFile    string
+	TlsKeyFile     string
+	ClientID       string
+	ClientSecret   string
+	TrustedCAFile  string
+	AuthDiscovery  string
+	ApiServiceURL  string
+	ApiConnectMode string
+	TemplatesPath  string
+}
+
+func NewConfig() *Config {
+	return &Config{GrpcPort: DefaultGrpcPort}
 }
 
 func (c *Config) GetGrpcPortString() string {
@@ -48,8 +54,4 @@ func (c *Config) ReadFiles() {
 			logrus.Errorf("config.go: failed to read err=%v", err)
 		}
 	}
-}
-
-func NewConfig() *Config {
-	return &Config{GrpcPort: DefaultGrpcPort}
 }

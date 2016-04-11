@@ -60,9 +60,10 @@ func (s *Server) Listen() {
 }
 
 func (s *Server) Creds(getToken bool) {
-	log.Debugln("Creating new oidc client discovery=", s.Config.AuthDiscovery)
-	var tlsConfig tls.Config
 	var roots *x509.CertPool
+	tlsConfig := tls.Config{ServerName: ""}
+	var opts []grpc.DialOption
+
 	if s.Config.TrustedCAFile != "" {
 		roots = x509.NewCertPool()
 		pemBlock, err := ioutil.ReadFile(s.Config.TrustedCAFile)
@@ -73,17 +74,19 @@ func (s *Server) Creds(getToken bool) {
 		tlsConfig.RootCAs = roots
 	}
 
-	var opts []grpc.DialOption
-	if roots != nil {
-		opts = append(opts, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(roots, "")))
+	if s.Config.ApiConnectMode == "insecure-tls" {
+		tlsConfig.InsecureSkipVerify = true
+		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(&tlsConfig)))
+	} else if s.Config.ApiConnectMode == "tls" {
+		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(&tlsConfig)))
 	} else {
 		opts = append(opts, grpc.WithInsecure())
 	}
 
 	if getToken {
+		log.Debugln("Creating new oidc client discovery=", s.Config.AuthDiscovery)
 		s.client, s.tm = dashboard.NewClient(s.Config.ClientID, s.Config.ClientSecret, s.Config.AuthDiscovery, "", &tlsConfig)
-		jwtCreds := dashboard.NewOauthAccess(s.tm)
-		opts = append(opts, grpc.WithPerRPCCredentials(jwtCreds))
+		opts = append(opts, grpc.WithPerRPCCredentials(dashboard.NewOauthAccess(s.tm)))
 	}
 
 	s.api = NewLazyApiClient(s.Config.ApiServiceURL, opts)
@@ -113,7 +116,7 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Provi
 		pit := &pb.ProviderItem{
 			Cacheable: true,
 			Ttl:       now - p.CreatedAt,
-			Item:      NewCard(in, res.Ttl),
+			Item:      NewCard(in, res.Ttl, p),
 		}
 		res.Items[0] = pit
 	} else {

@@ -14,7 +14,7 @@ type taskResult struct {
 	items    *pb.ProviderItems
 }
 
-func worker(p *Provider, req pb.DashboardGetRequest, timeout int64, results chan <- taskResult) {
+func worker(p *Provider, req pb.DashboardGetRequest, timeout int64, results chan<- taskResult) {
 	//todo(sercan) look for caches, if a valid cached request is valid return it
 	client := p.Get()
 	c1 := make(chan taskResult, 1)
