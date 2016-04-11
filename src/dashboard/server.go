@@ -4,11 +4,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"dashboard/storage"
-	"io/ioutil"
-	"net"
-
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"net"
 	"path/filepath"
 
 	log "github.com/Sirupsen/logrus"
@@ -28,6 +27,7 @@ type Server struct {
 	Client       *Client
 	TokenManager *ClientCredsTokenManager
 	sc           *ServiceConfig
+	providers    []*Provider
 }
 
 func (s *Server) Listen() {
@@ -79,9 +79,16 @@ func NewServer(config *CommandConfig, driver storage.Driver) *Server {
 		server.Client = client
 		server.TokenManager = tokenMan
 	}
+	server.providers = make([]*Provider, len(sc.Providers))
+	for i, v := range sc.Providers {
+		server.providers[i] = &Provider{
+			config: v,
+		}
+	}
 	if config.WatchConfigFile {
 		go watchFile(config.ConfigPath)
 	}
+	go server.InitProviders()
 	return server
 }
 
@@ -104,4 +111,10 @@ func readConfig(configPath string) (*ServiceConfig, error) {
 		return nil, err
 	}
 	return desc, nil
+}
+
+func (s *Server) InitProviders() {
+	for _, v := range s.providers {
+		go v.Init()
+	}
 }

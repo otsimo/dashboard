@@ -52,12 +52,12 @@
 		ContentGetRequest
 		DashboardItems
 		DashboardGetRequest
-		DashboardItemDecoration
-		DashboardEmpty
-		DashboardWebpage
-		DashboardApplink
-		DashboardAnalysis
-		DashboardItem
+		CardDecoration
+		CardEmpty
+		CardWebpage
+		CardApplink
+		CardAnalysis
+		Card
 		ProviderItem
 		ProviderItems
 		ProviderInfoRequest

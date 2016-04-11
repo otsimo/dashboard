@@ -3,6 +3,7 @@ package dashboard
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/otsimo/otsimopb"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -48,4 +49,13 @@ func (ac *Provider) Get() otsimopb.DashboardProviderClient {
 	ac.client = otsimopb.NewDashboardProviderClient(conn)
 	ac.connection = conn
 	return ac.client
+}
+
+func (ac *Provider) Init() {
+	clt := ac.Get()
+	//	if ac.config.RequiresAuth {
+	pi, err := clt.Info(context.Background(), otsimopb.ProviderInfoRequest{})
+	if err != nil {
+		ac.config.info = pi
+	}
 }
