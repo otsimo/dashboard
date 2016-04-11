@@ -54,7 +54,7 @@ func (ac *Provider) Get() otsimopb.DashboardProviderClient {
 func (ac *Provider) Init() {
 	clt := ac.Get()
 	//	if ac.config.RequiresAuth {
-	pi, err := clt.Info(context.Background(), otsimopb.ProviderInfoRequest{})
+	pi, err := clt.Info(context.Background(), &otsimopb.ProviderInfoRequest{})
 	if err != nil {
 		ac.config.info = pi
 	}

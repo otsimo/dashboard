@@ -18,8 +18,8 @@ type oauthAccess struct {
 }
 
 // NewOauthAccess constructs the credentials using a given token.
-func NewOauthAccess(tm *ClientCredsTokenManager) oauthAccess {
-	return oauthAccess{tm: tm, RequireTLS: true}
+func NewOauthAccess(tm *ClientCredsTokenManager) credentials.Credentials {
+	return &oauthAccess{tm: tm, RequireTLS: true}
 }
 
 func (oa *oauthAccess) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {

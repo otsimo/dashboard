@@ -2,26 +2,43 @@
 
 source ./script/common
 
-if [ "$1" = "cross" ]; then
+BUILD_TARGET="$1"
+PACKAGE_BUILD="$2"
+LDFAGS="-w -X main.Version=$BUILD_VERSION"
 
-    echo "Cross build for linux and osx"
-    env GOOS=linux GOARCH=amd64 gb build -ldflags "-X main.Version=$BUILD_VERSION"
-    env GOOS=darwin GOARCH=amd64 gb build -ldflags "-X main.Version=$BUILD_VERSION"
+echo building: $BUILD_LIST
 
-elif [ "$1" = "docker" ]; then
-
-    echo "Cross build for linux amd64"
-    env GOOS=linux GOARCH=amd64 gb build -ldflags "-X main.Version=$BUILD_VERSION"
-
-else
-
-    echo "Build for" $(go env GOOS)
-    gb build -ldflags "-X main.Version=$BUILD_VERSION"
-
-fi
-
-# Rename files
-
-if [ -f ./bin/${APP_NAME} ]; then
-   mv ./bin/${APP_NAME} ./bin/${FILE_NAME}
-fi
+for varapp in $BUILD_LIST
+do
+    BUILD_OS=$(go env GOOS)
+    BUILD_ARCH=$(go env GOARCH)
+    app_name=$(echo "$varapp" | grep -o '[^/]*$')
+    
+    if [ "$BUILD_TARGET" = "docker" ]; then
+        BUILD_OS="linux"
+        BUILD_ARCH="amd64"
+    fi
+    
+    echo "build $app_name for $BUILD_OS-$BUILD_ARCH"
+    env CGO_ENABLED=0 GOOS=$BUILD_OS GOARCH=$BUILD_ARCH gb build -ldflags "$LDFAGS" $varapp
+    
+    if [ "$PACKAGE_BUILD" = "package" ]; then
+        binary_name=$app_name-$BUILD_OS-$BUILD_ARCH
+        docker_file="src/$varapp/Dockerfile"
+        copy_script="src/$varapp/copy-files.sh"        
+        target_dir="bin/$app_name"
+        
+        if [ ! -d "$target_dir" ];then
+            mkdir -p $target_dir
+        fi
+        if [ -f "$docker_file" ];then
+            cp $docker_file $target_dir
+        fi
+        if [ -f "$copy_script" ];then
+            sh $copy_script "src/$varapp" $target_dir
+        fi
+        if [ -f "bin/$binary_name" ];then
+            mv "bin/$binary_name" $target_dir
+        fi
+    fi
+done

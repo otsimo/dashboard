@@ -1,30 +1,24 @@
-.PHONY: default build release test clean
+.PHONY: default build docker release test clean gcr gcrpush
 
 default: build
 
 build: clean vet
-	script/build
-
-cross: clean vet
-	script/build cross
+	script/build none none
 
 docker: clean vet
-	script/build docker
+	script/build docker package
 
 release: clean vet
 	script/build docker
-	script/release
+	script/docker
     
 gcr: clean vet
-	script/build docker
-	script/gcr
+	script/build docker package
+	script/docker none gcr
 
 gcrpush: clean vet
-	script/build docker
-	script/gcr push
-    
-run: build
-	script/run
+	script/build docker package
+	script/docker push gcr
 
 fmt:
 	goimports -w src

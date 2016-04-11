@@ -187,7 +187,13 @@
 		{
 			"importpath": "github.com/otsimo/otsimopb",
 			"repository": "https://github.com/otsimo/otsimopb",
-			"revision": "94b498f3c101ec4160d1e0f3e0aa08665edef249",
+			"revision": "968b5cdc73692054e5fe097b8be5f504597e87b6",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/pborman/uuid",
+			"repository": "https://github.com/pborman/uuid",
+			"revision": "c55201b036063326c5b1b89ccfe45a184973d073",
 			"branch": "master"
 		},
 		{
