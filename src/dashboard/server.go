@@ -15,6 +15,7 @@ import (
 	pb "github.com/otsimo/otsimopb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"time"
 )
 
 var (
@@ -93,24 +94,32 @@ func NewServer(config *CommandConfig, driver storage.Driver) *Server {
 }
 
 func readConfig(configPath string) (*ServiceConfig, error) {
-	data, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		log.Errorf("failed to read configuration file, %#v", err)
-		return nil, err
+	maxNumberOfRetry := 3
+	var err error
+	var data []byte
+	for i := 0; i < maxNumberOfRetry; i++ {
+		data, err = ioutil.ReadFile(configPath)
+		if err != nil {
+			log.Errorf("failed to read configuration file, %+v", err)
+			time.Sleep(time.Second * time.Duration(5 * (i + 1)))
+			continue
+		}
+		desc := &ServiceConfig{}
+		if filepath.Ext(configPath) == ".yaml" || filepath.Ext(configPath) == ".yml" {
+			err = yaml.Unmarshal(data, desc)
+		} else if filepath.Ext(configPath) == ".json" {
+			err = json.Unmarshal(data, desc)
+		} else {
+			err = errors.New("unknwon data format")
+		}
+		if err != nil {
+			log.Errorf("failed to unmarshal configuration file, %+v", err)
+			time.Sleep(time.Second * time.Duration(5 * (i + 1)))
+			continue
+		}
+		return desc, nil
 	}
-	desc := &ServiceConfig{}
-	if filepath.Ext(configPath) == ".yaml" || filepath.Ext(configPath) == ".yml" {
-		err = yaml.Unmarshal(data, desc)
-	} else if filepath.Ext(configPath) == ".json" {
-		err = json.Unmarshal(data, desc)
-	} else {
-		err = errors.New("unknwon data format")
-	}
-	if err != nil {
-		log.Errorf("failed to unmarshal configuration file, %#v", err)
-		return nil, err
-	}
-	return desc, nil
+	return nil, err
 }
 
 func (s *Server) InitProviders() {
