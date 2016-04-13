@@ -114,13 +114,18 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Provi
 		ChildId:   in.ChildId,
 		CreatedAt: now,
 	}
-	if now - p.CreatedAt < OneWeek {
+	delta := now - p.CreatedAt
+	if delta < 0 {
+		delta = now - (p.CreatedAt / 1e3)
+	}
+
+	if delta < OneWeek {
 		res.Cacheable = true
-		res.Ttl = now - p.CreatedAt
+		res.Ttl = OneWeek - delta
 		res.Items = make([]*pb.ProviderItem, 1)
 		pit := &pb.ProviderItem{
 			Cacheable: true,
-			Ttl:       now - p.CreatedAt,
+			Ttl:       OneWeek - delta,
 			Item:      NewCard(in, res.Ttl, p),
 		}
 		res.Items[0] = pit
