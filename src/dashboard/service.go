@@ -17,6 +17,10 @@ type taskResult struct {
 func worker(p *Provider, req pb.DashboardGetRequest, timeout int64, results chan <- taskResult) {
 	//todo(sercan) look for caches, if a valid cached request is valid return it
 	client := p.Get()
+	if client == nil {
+		p.Close()
+		client = p.Get()
+	}
 	c1 := make(chan taskResult, 1)
 	go func() {
 		pi, err := client.Get(context.Background(), &req)

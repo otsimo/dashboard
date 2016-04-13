@@ -45,7 +45,8 @@ func (ac *Provider) Get() otsimopb.DashboardProviderClient {
 
 	conn, err := grpc.Dial(ac.config.ServiceURL, opts...)
 	if err != nil {
-		logrus.Fatalf("provider.go: did not connect to remote provider service: %v", err)
+		logrus.Errorf("provider.go: did not connect to remote provider service: %v", err)
+		return nil
 	}
 	logrus.Infof("provider.go:[%s]: connected to %s service provider", ac.config.Name, ac.config.Name)
 	ac.client = otsimopb.NewDashboardProviderClient(conn)
@@ -58,7 +59,7 @@ func (ac *Provider) Init() {
 	//	if ac.config.RequiresAuth {
 	logrus.Infof("provider.go:[%s]: init calling", ac.config.Name)
 	pi, err := clt.Info(context.Background(), &otsimopb.ProviderInfoRequest{})
-	if err != nil {
+	if err == nil {
 		logrus.Infof("provider.go:[%s]: info=%+v", ac.config.Name, pi)
 		ac.config.info = pi
 	} else {
