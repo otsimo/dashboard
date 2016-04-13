@@ -18,8 +18,8 @@ import (
 )
 
 const (
-	OneDay  = 60 * 60 * 24
-	OneWeek = 8 * OneDay
+	OneDay = 60 * 60 * 24
+	OneWeek = 7 * OneDay
 )
 
 type Server struct {
@@ -93,13 +93,18 @@ func (s *Server) Creds(getToken bool) {
 }
 
 func (d *Server) Info(ctx context.Context, in *pb.ProviderInfoRequest) (*pb.ProviderInfo, error) {
+	log.Infof("server.go:INFO: %+v", in)
+	api := d.api.Get()
+	log.Infof("server.go:INFO: connected to api service %v", api)
 	return &pb.ProviderInfo{}, nil
 }
 
 func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.ProviderItems, error) {
+	log.Infof("server.go:GET: %+v", in)
 	api := d.api.Get()
 	p, err := api.GetProfile(context.Background(), &pb.GetProfileRequest{Id: in.ProfileId})
 	if err != nil {
+		log.Errorf("server.go:GET: profile not found")
 		return nil, errors.New("Not found")
 	}
 	now := time.Now().Unix()
@@ -109,7 +114,7 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Provi
 		ChildId:   in.ChildId,
 		CreatedAt: now,
 	}
-	if now-p.CreatedAt < OneWeek {
+	if now - p.CreatedAt < OneWeek {
 		res.Cacheable = true
 		res.Ttl = now - p.CreatedAt
 		res.Items = make([]*pb.ProviderItem, 1)
@@ -120,8 +125,8 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Provi
 		}
 		res.Items[0] = pit
 	} else {
-		res.Cacheable = false
-		res.Ttl = 0
+		res.Cacheable = true
+		res.Ttl = OneWeek * 4
 		res.Items = []*pb.ProviderItem{}
 	}
 	return res, nil
