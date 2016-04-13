@@ -604,13 +604,11 @@ func (m *GameEntryRequest) MarshalTo(data []byte) (int, error) {
 		i++
 		i = encodeVarintMessages(data, i, uint64(m.Type))
 	}
-	if m.Settings != nil {
-		if len(m.Settings) > 0 {
-			data[i] = 0x22
-			i++
-			i = encodeVarintMessages(data, i, uint64(len(m.Settings)))
-			i += copy(data[i:], m.Settings)
-		}
+	if len(m.Settings) > 0 {
+		data[i] = 0x22
+		i++
+		i = encodeVarintMessages(data, i, uint64(len(m.Settings)))
+		i += copy(data[i:], m.Settings)
 	}
 	if m.Index != 0 {
 		data[i] = 0x28
@@ -1190,11 +1188,9 @@ func (m *GameEntryRequest) Size() (n int) {
 	if m.Type != 0 {
 		n += 1 + sovMessages(uint64(m.Type))
 	}
-	if m.Settings != nil {
-		l = len(m.Settings)
-		if l > 0 {
-			n += 1 + l + sovMessages(uint64(l))
-		}
+	l = len(m.Settings)
+	if l > 0 {
+		n += 1 + l + sovMessages(uint64(l))
 	}
 	if m.Index != 0 {
 		n += 1 + sovMessages(uint64(m.Index))

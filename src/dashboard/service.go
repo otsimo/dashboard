@@ -55,6 +55,7 @@ func (d *Server) processResult(to *pb.DashboardItems, req *pb.DashboardGetReques
 	for _, v := range res.items.Items {
 		item := v.Item
 		item.ProviderWeight = pr.ScoreMultiplier
+		item.ProviderName = pr.Name
 		//todo(sercan) possible race?
 		to.Items = append(to.Items, item)
 	}

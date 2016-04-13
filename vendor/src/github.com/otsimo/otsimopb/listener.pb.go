@@ -497,13 +497,11 @@ func (m *Event) MarshalTo(data []byte) (int, error) {
 		}
 		i++
 	}
-	if m.Payload != nil {
-		if len(m.Payload) > 0 {
-			data[i] = 0x5a
-			i++
-			i = encodeVarintListener(data, i, uint64(len(m.Payload)))
-			i += copy(data[i:], m.Payload)
-		}
+	if len(m.Payload) > 0 {
+		data[i] = 0x5a
+		i++
+		i = encodeVarintListener(data, i, uint64(len(m.Payload)))
+		i += copy(data[i:], m.Payload)
 	}
 	return i, nil
 }
@@ -550,13 +548,11 @@ func (m *AppEventData) MarshalTo(data []byte) (int, error) {
 		i++
 		i = encodeVarintListener(data, i, uint64(m.Timestamp))
 	}
-	if m.Payload != nil {
-		if len(m.Payload) > 0 {
-			data[i] = 0x2a
-			i++
-			i = encodeVarintListener(data, i, uint64(len(m.Payload)))
-			i += copy(data[i:], m.Payload)
-		}
+	if len(m.Payload) > 0 {
+		data[i] = 0x2a
+		i++
+		i = encodeVarintListener(data, i, uint64(len(m.Payload)))
+		i += copy(data[i:], m.Payload)
 	}
 	if m.Loc != nil {
 		data[i] = 0x32
@@ -769,11 +765,9 @@ func (m *Event) Size() (n int) {
 	if m.IsResend {
 		n += 2
 	}
-	if m.Payload != nil {
-		l = len(m.Payload)
-		if l > 0 {
-			n += 1 + l + sovListener(uint64(l))
-		}
+	l = len(m.Payload)
+	if l > 0 {
+		n += 1 + l + sovListener(uint64(l))
 	}
 	return n
 }
@@ -796,11 +790,9 @@ func (m *AppEventData) Size() (n int) {
 	if m.Timestamp != 0 {
 		n += 1 + sovListener(uint64(m.Timestamp))
 	}
-	if m.Payload != nil {
-		l = len(m.Payload)
-		if l > 0 {
-			n += 1 + l + sovListener(uint64(l))
-		}
+	l = len(m.Payload)
+	if l > 0 {
+		n += 1 + l + sovListener(uint64(l))
 	}
 	if m.Loc != nil {
 		l = m.Loc.Size()

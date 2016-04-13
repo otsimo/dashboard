@@ -11,6 +11,7 @@
 		catalog.proto
 		content.proto
 		dashboard.proto
+		dashprovider.proto
 		dataset.proto
 		discovery.proto
 		listener.proto

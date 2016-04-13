@@ -433,13 +433,11 @@ func (m *ChildGameEntry) MarshalTo(data []byte) (int, error) {
 		i++
 		i = encodeVarintModels(data, i, uint64(m.DashboardIndex))
 	}
-	if m.Settings != nil {
-		if len(m.Settings) > 0 {
-			data[i] = 0x22
-			i++
-			i = encodeVarintModels(data, i, uint64(len(m.Settings)))
-			i += copy(data[i:], m.Settings)
-		}
+	if len(m.Settings) > 0 {
+		data[i] = 0x22
+		i++
+		i = encodeVarintModels(data, i, uint64(len(m.Settings)))
+		i += copy(data[i:], m.Settings)
 	}
 	if m.AddedAt != 0 {
 		data[i] = 0x28
@@ -1155,11 +1153,9 @@ func (m *ChildGameEntry) Size() (n int) {
 	if m.DashboardIndex != 0 {
 		n += 1 + sovModels(uint64(m.DashboardIndex))
 	}
-	if m.Settings != nil {
-		l = len(m.Settings)
-		if l > 0 {
-			n += 1 + l + sovModels(uint64(l))
-		}
+	l = len(m.Settings)
+	if l > 0 {
+		n += 1 + l + sovModels(uint64(l))
 	}
 	if m.AddedAt != 0 {
 		n += 1 + sovModels(uint64(m.AddedAt))

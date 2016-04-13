@@ -42,7 +42,7 @@ func NewCard(in *pb.DashboardGetRequest, ttl int64, profile *pb.Profile) *pb.Car
 		Text:       txt,
 		ExpiresAt:  now + ttl,
 		Decoration: &dec,
-		Score:      int32(score),
+		ProviderScore:      int32(score),
 		Data:       &pb.Card_Empty{Empty: &pb.CardEmpty{}},
 	}
 }

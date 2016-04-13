@@ -346,13 +346,11 @@ func (m *Content) MarshalTo(data []byte) (int, error) {
 		i++
 		i = encodeVarintContent(data, i, uint64(m.CategoryWeight))
 	}
-	if m.Markdown != nil {
-		if len(m.Markdown) > 0 {
-			data[i] = 0x6a
-			i++
-			i = encodeVarintContent(data, i, uint64(len(m.Markdown)))
-			i += copy(data[i:], m.Markdown)
-		}
+	if len(m.Markdown) > 0 {
+		data[i] = 0x6a
+		i++
+		i = encodeVarintContent(data, i, uint64(len(m.Markdown)))
+		i += copy(data[i:], m.Markdown)
 	}
 	return i, nil
 }
@@ -569,11 +567,9 @@ func (m *Content) Size() (n int) {
 	if m.CategoryWeight != 0 {
 		n += 1 + sovContent(uint64(m.CategoryWeight))
 	}
-	if m.Markdown != nil {
-		l = len(m.Markdown)
-		if l > 0 {
-			n += 1 + l + sovContent(uint64(l))
-		}
+	l = len(m.Markdown)
+	if l > 0 {
+		n += 1 + l + sovContent(uint64(l))
 	}
 	return n
 }
