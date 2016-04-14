@@ -70,6 +70,8 @@
 		DataSet
 		OtsimoServices
 		DiscoveryRequest
+		SelfLearningSegment
+		SelfLearningConfig
 		DeviceInfo
 		GameInfo
 		Point

@@ -15,6 +15,7 @@ option go_package = "otsimopb";
 // DashboardService
 service DashboardService {
     rpc Get(DashboardGetRequest) returns (DashboardItems);
+    rpc GetStream(DashboardGetRequest) returns (stream Card);
 }
 
 message DashboardItems {

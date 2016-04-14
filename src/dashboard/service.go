@@ -14,7 +14,7 @@ type taskResult struct {
 	items    *pb.ProviderItems
 }
 
-func worker(p *Provider, req pb.DashboardGetRequest, timeout int64, results chan <- taskResult) {
+func workerSync(p *Provider, req pb.DashboardGetRequest, timeout int64, results chan<- taskResult) {
 	//todo(sercan) look for caches, if a valid cached request is valid return it
 	client := p.Get()
 	if client == nil {
@@ -41,7 +41,7 @@ func worker(p *Provider, req pb.DashboardGetRequest, timeout int64, results chan
 	}
 }
 
-func (d *Server) processResult(to *pb.DashboardItems, req *pb.DashboardGetRequest, res taskResult) {
+func (d *Server) processResultSync(to *pb.DashboardItems, req *pb.DashboardGetRequest, res taskResult) {
 	if !res.success {
 		return
 	}
@@ -71,7 +71,7 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Dashb
 	defer close(results)
 
 	for _, v := range d.providers {
-		go worker(v, *in, 1000, results)
+		go workerSync(v, *in, 1000, results)
 	}
 	res := &pb.DashboardItems{
 		ProfileId: in.ProfileId,
@@ -81,7 +81,7 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Dashb
 	}
 	for a := 1; a <= n; a++ {
 		r := <-results
-		d.processResult(res, in, r)
+		d.processResultSync(res, in, r)
 	}
 	logrus.Debugf("service.go: send result to client: %+v", res)
 	return res, nil

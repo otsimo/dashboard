@@ -10,12 +10,13 @@ import (
 	"net"
 	"path/filepath"
 
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/ghodss/yaml"
 	pb "github.com/otsimo/otsimopb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"time"
 )
 
 var (
@@ -101,7 +102,7 @@ func readConfig(configPath string) (*ServiceConfig, error) {
 		data, err = ioutil.ReadFile(configPath)
 		if err != nil {
 			log.Errorf("failed to read configuration file, %+v", err)
-			time.Sleep(time.Second * time.Duration(5 * (i + 1)))
+			time.Sleep(time.Second * time.Duration(5*(i+1)))
 			continue
 		}
 		desc := &ServiceConfig{}
@@ -114,7 +115,7 @@ func readConfig(configPath string) (*ServiceConfig, error) {
 		}
 		if err != nil {
 			log.Errorf("failed to unmarshal configuration file, %+v", err)
-			time.Sleep(time.Second * time.Duration(5 * (i + 1)))
+			time.Sleep(time.Second * time.Duration(5*(i+1)))
 			continue
 		}
 		return desc, nil
