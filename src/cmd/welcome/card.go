@@ -1,12 +1,10 @@
 package main
 
 import (
-	"time"
-
 	"bytes"
 	"fmt"
+	"time"
 
-	"github.com/Sirupsen/logrus"
 	pb "github.com/otsimo/otsimopb"
 )
 
@@ -34,10 +32,13 @@ func NewCard(in *pb.DashboardGetRequest, ttl int64, profile *pb.Profile) *pb.Car
 	score := 500
 	txt := createText(in.Language, profile)
 
+	id := fmt.Sprintf("%s-%s", in.ProfileId, in.Language)
+
 	return &pb.Card{
-		Id:            NewUUID(),
+		Id:            id,
 		CreatedAt:     now,
 		Text:          txt,
+		Language:      in.Language,
 		ExpiresAt:     now + ttl,
 		Decoration:    &dec,
 		ProviderScore: int32(score),

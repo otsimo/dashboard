@@ -87,6 +87,7 @@ message Card {
     //ProviderWeight is between 0-2
     float provider_weight = 7;
     string provider_name = 8;
+    string language = 9;
     
     oneof data{
         CardEmpty empty = 10;
