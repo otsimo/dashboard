@@ -27,15 +27,15 @@ func createText(lang string, profile *pb.Profile) string {
 	return b.String()
 }
 
-func NewCard(in *pb.DashboardGetRequest, ttl int64, profile *pb.Profile) *pb.Card {
+func NewCard(in *pb.DashboardGetRequest, ttl int64, profile *pb.Profile, id int64) *pb.Card {
 	now := time.Now().Unix()
 	score := 500
 	txt := createText(in.Language, profile)
 
-	id := fmt.Sprintf("%s-%s", in.ProfileId, in.Language)
+	cid := fmt.Sprintf("welcome-%s-%s-%d", in.ProfileId, in.Language, id)
 
 	return &pb.Card{
-		Id:            id,
+		Id:            cid,
 		CreatedAt:     now,
 		Text:          txt,
 		Language:      in.Language,

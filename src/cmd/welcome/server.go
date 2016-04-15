@@ -99,6 +99,24 @@ func (d *Server) Info(ctx context.Context, in *pb.ProviderInfoRequest) (*pb.Prov
 	return &pb.ProviderInfo{}, nil
 }
 
+func NewItem(in *pb.DashboardGetRequest, p *pb.Profile, delta, score, id int64) *pb.ProviderItem {
+	ttl := OneWeek - delta
+	card := NewCard(in, int64(ttl), p, id)
+	card.ProviderScore = int32(score)
+	if score > 495 {
+		card.Decoration.Size_ = pb.LARGE
+	} else if score > 450 {
+		card.Decoration.Size_ = pb.MEDIUM
+	} else {
+		card.Decoration.Size_ = pb.SMALL
+	}
+	return &pb.ProviderItem{
+		Cacheable: true,
+		Ttl:       ttl,
+		Item:      card,
+	}
+}
+
 func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.ProviderItems, error) {
 	log.Infof("server.go:GET: %+v", in)
 	api := d.api.Get()
@@ -122,13 +140,10 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Provi
 	if delta < OneWeek {
 		res.Cacheable = true
 		res.Ttl = OneWeek - delta
-		res.Items = make([]*pb.ProviderItem, 1)
-		pit := &pb.ProviderItem{
-			Cacheable: true,
-			Ttl:       OneWeek - delta,
-			Item:      NewCard(in, res.Ttl, p),
-		}
-		res.Items[0] = pit
+		res.Items = make([]*pb.ProviderItem, 3)
+		res.Items[0] = NewItem(in, p, delta, 490, 1)
+		res.Items[1] = NewItem(in, p, delta, 390, 2)
+		res.Items[2] = NewItem(in, p, delta, 350, 3)
 	} else {
 		res.Cacheable = true
 		res.Ttl = OneWeek * 4
