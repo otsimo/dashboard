@@ -8,14 +8,6 @@ import (
 	pb "github.com/otsimo/otsimopb"
 )
 
-var dec = pb.CardDecoration{
-	Size_:           pb.LARGE,
-	BackgroundStyle: pb.EMPTY,
-	ImageUrl:        "",
-	LeftIcon:        "",
-	RightIcon:       "",
-}
-
 func createText(lang string, profile *pb.Profile) string {
 	var b bytes.Buffer
 	data := map[string]interface{}{
@@ -29,19 +21,21 @@ func createText(lang string, profile *pb.Profile) string {
 
 func NewCard(in *pb.DashboardGetRequest, ttl int64, profile *pb.Profile, id int64) *pb.Card {
 	now := time.Now().Unix()
-	score := 500
 	txt := createText(in.Language, profile)
-
 	cid := fmt.Sprintf("welcome-%s-%s-%d", in.ProfileId, in.Language, id)
-
 	return &pb.Card{
 		Id:            cid,
 		CreatedAt:     now,
 		Text:          txt,
 		Language:      in.Language,
 		ExpiresAt:     now + ttl,
-		Decoration:    &dec,
-		ProviderScore: int32(score),
+		Decoration:    &pb.CardDecoration{
+			Size_:           pb.LARGE,
+			BackgroundStyle: pb.EMPTY,
+			ImageUrl:        "",
+			LeftIcon:        "time",
+			RightIcon:       "",
+		},
 		Data:          &pb.Card_Empty{Empty: &pb.CardEmpty{}},
 	}
 }
