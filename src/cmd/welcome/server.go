@@ -153,7 +153,7 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Provi
 	if delta < OneWeek {
 		res.Cacheable = true
 		res.Ttl = OneWeek - delta
-		res.Items = make([]*pb.ProviderItem, 3)
+		res.Items = make([]*pb.ProviderItem, 4)
 		res.Items[0] = NewItem(in, p, delta, 490, 1)
 		res.Items[1] = NewItem(in, p, delta, 390, 2)
 		res.Items[2] = NewItem(in, p, delta, 350, 3)
