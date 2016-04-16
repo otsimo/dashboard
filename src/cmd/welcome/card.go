@@ -24,18 +24,18 @@ func NewCard(in *pb.DashboardGetRequest, ttl int64, profile *pb.Profile, id int6
 	txt := createText(in.Language, profile)
 	cid := fmt.Sprintf("welcome-%s-%s-%d", in.ProfileId, in.Language, id)
 	return &pb.Card{
-		Id:            cid,
-		CreatedAt:     now,
-		Text:          txt,
-		Language:      in.Language,
-		ExpiresAt:     now + ttl,
-		Decoration:    &pb.CardDecoration{
+		Id:        cid,
+		CreatedAt: now,
+		Text:      txt,
+		Language:  in.Language,
+		ExpiresAt: now + ttl,
+		Decoration: &pb.CardDecoration{
 			Size_:           pb.LARGE,
 			BackgroundStyle: pb.EMPTY,
 			ImageUrl:        "",
 			LeftIcon:        "time",
 			RightIcon:       "",
 		},
-		Data:          &pb.Card_Empty{Empty: &pb.CardEmpty{}},
+		Data: &pb.Card_Empty{Empty: &pb.CardEmpty{}},
 	}
 }
