@@ -126,6 +126,12 @@
 			"path": "/timeutil"
 		},
 		{
+			"importpath": "github.com/denisenkom/go-mssqldb",
+			"repository": "https://github.com/denisenkom/go-mssqldb",
+			"revision": "8d4984e8baccbf5bfadd7f7e366fd61b7ccac38b",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/fsnotify/fsnotify",
 			"repository": "https://github.com/fsnotify/fsnotify",
 			"revision": "3c39c22b2c7b0516d5f2553f1608e5d13cb19053",
@@ -135,6 +141,12 @@
 			"importpath": "github.com/ghodss/yaml",
 			"repository": "https://github.com/ghodss/yaml",
 			"revision": "1a6f069841556a7bcaff4a397ca6e8328d266c2f",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/go-sql-driver/mysql",
+			"repository": "https://github.com/go-sql-driver/mysql",
+			"revision": "7ebe0a500653eeb1859664bed5e48dec1e164e73",
 			"branch": "master"
 		},
 		{
@@ -179,9 +191,33 @@
 			"path": "/proto"
 		},
 		{
+			"importpath": "github.com/jinzhu/gorm",
+			"repository": "https://github.com/jinzhu/gorm",
+			"revision": "5174cc5c242a728b435ea2be8a2f7f998e15429b",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/jinzhu/inflection",
+			"repository": "https://github.com/jinzhu/inflection",
+			"revision": "3272df6c21d04180007eb3349844c89a3856bc25",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/jonboulle/clockwork",
 			"repository": "https://github.com/jonboulle/clockwork",
 			"revision": "ed104f61ea4877bea08af6f759805674861e968d",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/lib/pq",
+			"repository": "https://github.com/lib/pq",
+			"revision": "3cd0097429be7d611bb644ef85b42bfb102ceea4",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-sqlite3",
+			"repository": "https://github.com/mattn/go-sqlite3",
+			"revision": "0d708316a6f2070c6e235a6fd1770f63e37f6360",
 			"branch": "master"
 		},
 		{
@@ -195,6 +231,13 @@
 			"repository": "https://github.com/pborman/uuid",
 			"revision": "c55201b036063326c5b1b89ccfe45a184973d073",
 			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/crypto/md4",
+			"repository": "https://go.googlesource.com/crypto",
+			"revision": "1777f3ba8c1fed80fcaec3317e3aaa4f627764d2",
+			"branch": "master",
+			"path": "/md4"
 		},
 		{
 			"importpath": "golang.org/x/net/context",
