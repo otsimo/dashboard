@@ -12,7 +12,7 @@ import (
 
 const (
 	MongoDBDriverName string = "mongodb"
-	mongoURLFlag string = "mongodb-url"
+	mongoURLFlag      string = "mongodb-url"
 )
 
 func init() {
@@ -47,13 +47,13 @@ func (d MongoDBDriver) Name() string {
 	return MongoDBDriverName
 }
 
-func (d *MongoDBDriver) GetUser(id string) (*storage.DashboardUser, error) {
+func (d *MongoDBDriver) GetUser(id string) *storage.DashboardUser {
 	c := d.Session.DB("").C("DashboardUser")
 	u := &storage.DashboardUser{}
 	if err := c.FindId(id).One(u); err != nil {
-		return nil, err
+		return &storage.DashboardUser{}
 	}
-	return u, nil
+	return u
 }
 
 func (d *MongoDBDriver) GetItems(userID, provider string, from int64) ([]*storage.Item, error) {

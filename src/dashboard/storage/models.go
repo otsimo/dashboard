@@ -1,6 +1,10 @@
 package storage
 
-import "time"
+import (
+	"time"
+
+	"github.com/otsimo/otsimopb"
+)
 
 type Item struct {
 	ID           string    `bson:"_id" gorm:"primary_key"`
@@ -22,4 +26,12 @@ type ProviderUserInfo struct {
 type DashboardUser struct {
 	ID        string             `bson:"_id" gorm:"primary_key"`
 	Providers []ProviderUserInfo `bson:"providers"`
+}
+
+func (i *Item) GetCard() *otsimopb.Card {
+	card := &otsimopb.Card{}
+	if err := card.Unmarshal(i.Card); err != nil {
+		return nil
+	}
+	return card
 }
