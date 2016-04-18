@@ -8,6 +8,8 @@ import (
 
 type Driver interface {
 	Name() string
+	GetUser(id string) (*DashboardUser, error)
+	GetItems(userID, provider string, from int64) ([]*Item, error)
 }
 
 type RegisteredDriver struct {

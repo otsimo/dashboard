@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	OneDay = 60 * 60 * 24
+	OneDay  = 60 * 60 * 24
 	OneWeek = 7 * OneDay
 )
 

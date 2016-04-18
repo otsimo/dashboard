@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"net"
 	"path/filepath"
-
 	"time"
 
 	log "github.com/Sirupsen/logrus"
