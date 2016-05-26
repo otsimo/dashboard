@@ -16,6 +16,8 @@ import (
 	pb "github.com/otsimo/otsimopb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 var (
@@ -27,7 +29,6 @@ type Server struct {
 	Storage      storage.Driver
 	Client       *Client
 	TokenManager *ClientCredsTokenManager
-	sc           *ServiceConfig
 	providers    []*Provider
 }
 
@@ -49,6 +50,11 @@ func (s *Server) Listen() {
 	grpcServer := grpc.NewServer(opts...)
 
 	pb.RegisterDashboardServiceServer(grpcServer, s)
+
+	h := health.NewHealthServer()
+	grpc_health_v1.RegisterHealthServer(grpcServer, h)
+	h.SetServingStatus("dashboard", grpc_health_v1.HealthCheckResponse_SERVING)
+
 	log.Infof("server.go: Binding %s for grpc", grpcPort)
 	//Serve
 	grpcServer.Serve(lis)
@@ -62,7 +68,6 @@ func NewServer(config *CommandConfig, driver storage.Driver) *Server {
 	server := &Server{
 		Config:  config,
 		Storage: driver,
-		sc:      sc,
 	}
 	var tlsConfig tls.Config
 	if config.TrustedCAFile != "" {
@@ -74,7 +79,8 @@ func NewServer(config *CommandConfig, driver storage.Driver) *Server {
 		roots.AppendCertsFromPEM(pemBlock)
 		tlsConfig.RootCAs = roots
 	}
-	if config.NoAuth {
+
+	if !config.NoAuth {
 		log.Debugln("Creating new oidc client, discovery=", config.AuthDiscovery)
 		client, tokenMan := NewClient(config.ClientID, config.ClientSecret, config.AuthDiscovery, "", &tlsConfig)
 		server.Client = client
@@ -82,12 +88,10 @@ func NewServer(config *CommandConfig, driver storage.Driver) *Server {
 	}
 	server.providers = make([]*Provider, len(sc.Providers))
 	for i, v := range sc.Providers {
-		server.providers[i] = &Provider{
-			config: v,
-		}
+		server.providers[i] = NewProvider(v)
 	}
 	if config.WatchConfigFile {
-		go watchFile(config.ConfigPath)
+		go watchFile(config.ConfigPath, server)
 	}
 	go server.InitProviders()
 	return server
@@ -101,7 +105,7 @@ func readConfig(configPath string) (*ServiceConfig, error) {
 		data, err = ioutil.ReadFile(configPath)
 		if err != nil {
 			log.Errorf("failed to read configuration file, %+v", err)
-			time.Sleep(time.Second * time.Duration(5*(i+1)))
+			time.Sleep(time.Second * time.Duration(5 * (i + 1)))
 			continue
 		}
 		desc := &ServiceConfig{}
@@ -114,7 +118,7 @@ func readConfig(configPath string) (*ServiceConfig, error) {
 		}
 		if err != nil {
 			log.Errorf("failed to unmarshal configuration file, %+v", err)
-			time.Sleep(time.Second * time.Duration(5*(i+1)))
+			time.Sleep(time.Second * time.Duration(5 * (i + 1)))
 			continue
 		}
 		return desc, nil
@@ -125,5 +129,20 @@ func readConfig(configPath string) (*ServiceConfig, error) {
 func (s *Server) InitProviders() {
 	for _, v := range s.providers {
 		go v.Init()
+	}
+}
+
+func (s *Server) RereadConfig() {
+	sc, err := readConfig(s.Config.ConfigPath)
+	if err != nil {
+		log.Errorf("failed to read config file err=%v", err)
+		return
+	}
+	for _, v := range sc.Providers {
+		for _, sp := range s.providers {
+			if sp.Name() == v.Name {
+				sp.MergeConfig(v)
+			}
+		}
 	}
 }

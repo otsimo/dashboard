@@ -10,6 +10,8 @@ option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.goproto_unrecognized_all) = false;
 option (gogoproto.goproto_enum_prefix_all) = false;
 option go_package = "otsimopb";
+option java_package = "com.otsimo.grpc";
+option java_multiple_files = true;
 
 message OtsimoServices{
     string environment = 1;
@@ -39,6 +41,8 @@ message DiscoveryRequest {
     string sdk_version = 2;
     string os_name = 3;
     string country_code = 4;
+    string app_bundle_id = 5;
+    string app_bundle_version = 6;
 }
 
 message SelfLearningSegment{

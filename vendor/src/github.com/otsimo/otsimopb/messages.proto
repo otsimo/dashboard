@@ -10,6 +10,8 @@ option (gogoproto.unmarshaler_all) = true;
 option (gogoproto.goproto_getters_all) = false;
 option objc_class_prefix = "OTS";
 option go_package = "otsimopb";
+option java_package = "com.otsimo.grpc";
+option java_multiple_files = true;
 
 // Request and Responses
 
@@ -78,6 +80,12 @@ message ValidateRequest{
     ReleaseState new_state = 3; //only admins can change to validated state, and only developers can change to others
 }
 
+message UpdateIndecesRequest {
+    string profile_id = 1;
+    string child_id = 2;
+    repeated string game_ids = 3;    
+}
+
 //Get game by game_id or unique_name
 message GetGameRequest{
     string unique_name = 1;
@@ -106,7 +114,9 @@ message ListItem {
     ReleaseState latest_state = 4;
     string production_version = 5;
     string storage = 6;           
-    string archive_format = 7;        
+    string archive_format = 7;   
+    int64 released_at = 8;
+    repeated string languages = 9;
 }
 
 message GetLatestVersionsRequest{

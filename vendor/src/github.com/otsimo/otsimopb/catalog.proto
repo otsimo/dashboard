@@ -11,6 +11,8 @@ option (gogoproto.goproto_getters_all) = false;
 option (gogoproto.goproto_unrecognized_all) = false;
 option go_package = "otsimopb";
 option objc_class_prefix = "OTS";
+option java_package = "com.otsimo.grpc";
+option java_multiple_files = true;
 
 
 enum CatalogCategory{

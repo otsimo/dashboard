@@ -13,6 +13,8 @@ option (gogoproto.goproto_unrecognized_all) = false;
 option (gogoproto.goproto_enum_prefix_all) = false;
 option go_package = "otsimopb";
 option objc_class_prefix = "OTS";
+option java_package = "com.otsimo.grpc";
+option java_multiple_files = true;
 
 // API Service
 service ApiService {
@@ -30,4 +32,5 @@ service ApiService {
     rpc ChangeActivation(ChangeChildActivationRequest)returns(Response);
     rpc GetDisabledChildren(GetChildrenFromProfileRequest)returns(GetChildrenFromProfileResponse);
     rpc SoundEnable(SoundEnableRequest) returns (Response);
+    rpc UpdateGameIndices(UpdateIndecesRequest) returns (Child);
 }

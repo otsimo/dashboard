@@ -9,6 +9,8 @@ option (gogoproto.unmarshaler_all) = true;
 option (gogoproto.goproto_getters_all) = false;
 option objc_class_prefix = "OTS";
 option go_package = "otsimopb";
+option java_package = "com.otsimo.grpc";
+option java_multiple_files = true;
 
 // Data models
 
@@ -62,6 +64,7 @@ message Child{
     bool sounds_enabled = 12            [(gogoproto.moretags) = "bson:\"sounds_enabled,omitempty\""];     
     int64 created_at = 15               [(gogoproto.moretags) = "bson:\"created_at,omitempty\""];
     int64 last_updated = 16             [(gogoproto.moretags) = "bson:\"last_updated,omitempty\""];
+    map<string,string>child_info = 17   [(gogoproto.moretags) = "bson:\"child_info,omitempty\""];    
 }
 
 message Author{

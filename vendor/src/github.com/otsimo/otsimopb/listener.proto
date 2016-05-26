@@ -10,6 +10,8 @@ option (gogoproto.goproto_unrecognized_all) = false;
 option (gogoproto.goproto_enum_prefix_all) = false;
 option go_package = "otsimopb";
 option objc_class_prefix = "OTS";
+option java_package = "com.otsimo.grpc";
+option java_multiple_files = true;
 
 message DeviceInfo{
     string vendorId = 1;
@@ -76,6 +78,36 @@ message AppEventData{
     string event_id = 7;
     //IsResend is true if client is trying to send a failed event
     bool is_resend = 8;
+}
+
+message BatchEventData{
+    //Event the event name
+    string event = 1;
+    //EventId is Client side event id in order to track whether event is delivered successfully
+    string event_id = 2;
+    //Timestamp is seconds unix time
+    int64 timestamp = 3;
+    //Game is the game information
+    GameInfo game = 4;    
+    //Loc is the location of user
+    Point loc = 5;
+    //IsResend is true if client is trying to send a failed event
+    bool is_resend = 6;
+    //Payload is a json data
+    bytes payload = 7;
+}
+
+message BatchEvent{
+    //UserId is profile id or child id 
+    string user_id = 1;
+    //Child is secondary id  
+    string child_id = 2;  
+    //AppId is the client app id
+    string app_id = 3;
+    //Device is device information,
+    DeviceInfo device = 4;
+    //Data is 
+    repeated BatchEventData data = 5;
 }
 
 message EventResponse{

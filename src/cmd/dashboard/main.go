@@ -4,6 +4,7 @@ import (
 	"dashboard"
 	"dashboard/storage"
 	_ "dashboard/storage/mongodb"
+	_ "dashboard/storage/postgres"
 	"fmt"
 	"os"
 	"strings"

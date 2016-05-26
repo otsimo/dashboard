@@ -128,6 +128,6 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Dashb
 		r := <-results
 		d.processResultSync(res, in, r)
 	}
-	logrus.Debugf("service.go: send result to client: %+v", res)
+	logrus.Debugf("service.go: send result to client: count=%d", len(res.Items))
 	return res, nil
 }

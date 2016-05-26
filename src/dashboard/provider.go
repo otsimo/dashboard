@@ -1,6 +1,8 @@
 package dashboard
 
 import (
+	"sync"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/otsimo/otsimopb"
 	"golang.org/x/net/context"
@@ -21,6 +23,8 @@ type Provider struct {
 	config     ProviderConfig
 	connection *grpc.ClientConn
 	client     otsimopb.DashboardProviderClient
+	configLock sync.RWMutex
+	name       string
 }
 
 func (ac *Provider) Close() {
@@ -34,21 +38,24 @@ func (ac *Provider) Get() otsimopb.DashboardProviderClient {
 	if ac.connection != nil {
 		return ac.client
 	}
-	logrus.Infof("provider.go:[%s]: connecting to %s service provider", ac.config.Name, ac.config.Name)
+	ac.configLock.RLock()
 
+	logrus.Infof("provider.go:[%s]: connecting to %s service provider", ac.config.Name, ac.config.Name)
 	var opts []grpc.DialOption
 	if ac.config.InsecureConnection {
 		opts = append(opts, grpc.WithInsecure())
 	} else {
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(roots, "")))
 	}
-
 	conn, err := grpc.Dial(ac.config.ServiceURL, opts...)
 	if err != nil {
 		logrus.Errorf("provider.go: did not connect to remote provider service: %v", err)
 		return nil
 	}
 	logrus.Infof("provider.go:[%s]: connected to %s service provider", ac.config.Name, ac.config.Name)
+
+	ac.configLock.RUnlock()
+
 	ac.client = otsimopb.NewDashboardProviderClient(conn)
 	ac.connection = conn
 	return ac.client
@@ -57,12 +64,48 @@ func (ac *Provider) Get() otsimopb.DashboardProviderClient {
 func (ac *Provider) Init() {
 	clt := ac.Get()
 	//	if ac.config.RequiresAuth {
-	logrus.Infof("provider.go:[%s]: init calling", ac.config.Name)
+	logrus.Infof("provider.go:[%s]: init calling", ac.name)
 	pi, err := clt.Info(context.Background(), &otsimopb.ProviderInfoRequest{})
 	if err == nil {
-		logrus.Infof("provider.go:[%s]: info=%+v", ac.config.Name, pi)
+		logrus.Infof("provider.go:[%s]: info=%+v", ac.name, pi)
+		ac.configLock.Lock()
 		ac.config.info = pi
+		ac.configLock.Unlock()
 	} else {
-		logrus.Errorf("provider.go:[%s]: failed to get info, err=%v", ac.config.Name, err)
+		logrus.Errorf("provider.go:[%s]: failed to get info, err=%v", ac.name, err)
+	}
+}
+
+func (ac *Provider) ReInit() {
+	ac.Close()
+	clt := ac.Get()
+	//	if ac.config.RequiresAuth {
+	logrus.Infof("provider.go:[%s]: reinit calling", ac.name)
+	pi, err := clt.Info(context.Background(), &otsimopb.ProviderInfoRequest{})
+	if err == nil {
+		logrus.Infof("provider.go:[%s]: info=%+v", ac.name, pi)
+		ac.configLock.Lock()
+		ac.config.info = pi
+		ac.configLock.Unlock()
+	} else {
+		logrus.Errorf("provider.go:[%s]: failed to get info, err=%v", ac.name, err)
+	}
+}
+
+func (ac *Provider) MergeConfig(config ProviderConfig) {
+	ac.configLock.Lock()
+	ac.config = config
+	ac.configLock.Unlock()
+	go ac.ReInit()
+}
+
+func (ac *Provider) Name() string {
+	return ac.name
+}
+
+func NewProvider(cnf ProviderConfig) *Provider {
+	return &Provider{
+		config:cnf,
+		name:cnf.Name,
 	}
 }
