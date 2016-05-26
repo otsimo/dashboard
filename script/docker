@@ -4,38 +4,47 @@ source ./script/common
 
 COMMAND="$1"
 SERVICE="$2"
+GCRENV="$3"
 DOCKER="docker"
 
 if [ "$2" = "gcr" ];then
     DOCKER="gcloud docker"
 fi
 
-for varapp in $BUILD_LIST
+if [ "$GCRENV" = "prod" ];then
+    GCRENV=""
+else
+    GCRENV="-$GCRENV"
+fi
+
+for varapp in ${BUILD_LIST}
 do
     app_name=$(echo "$varapp" | grep -o '[^/]*$')
     target_dir="bin/$app_name"    
     docker_file="$target_dir/Dockerfile"
     
     if [ "$2" = "gcr" ];then    
-        DOCKER_IMAGE_NAME=gcr.io/otsimocloud/$app_name
+        DOCKER_IMAGE_NAME=gcr.io/otsimocloud/${app_name}
     else
-        DOCKER_IMAGE_NAME=otsimo/otsimo-$app_name   
+        DOCKER_IMAGE_NAME=otsimo/otsimo-${app_name}
     fi
-    
-    TAG_NAME=$DOCKER_IMAGE_NAME:$APP_VERSION
+
+    TAG_NAME=${DOCKER_IMAGE_NAME}:${APP_VERSION}${GCRENV}
+
     if [ -f "$docker_file" ];then
         echo "##"
         echo "build '$app_name' image with $TAG_NAME tag"    
         echo "##"
         
-        DOCKER_OLD_IMAGE=$(docker images | grep $DOCKER_IMAGE_NAME | tail -n1 | awk '{print $3}')
+        DOCKER_OLD_IMAGE=$(docker images | grep ${DOCKER_IMAGE_NAME} | tail -n1 | awk '{print $3}')
         if [ ${#DOCKER_OLD_IMAGE} -gt 0 ]; then
-            docker rmi -f $DOCKER_OLD_IMAGE
+            docker rmi -f ${DOCKER_OLD_IMAGE}
         fi
-    
-        docker build --rm -t $TAG_NAME -f "$docker_file" $target_dir
+
+        docker build --rm -t ${TAG_NAME} -f "$docker_file" ${target_dir}
+
         if [ "$1" = "push" ]; then
-            eval "$DOCKER push $TAG_NAME"
+            eval "${DOCKER} push ${TAG_NAME}"
         fi
     fi
 done

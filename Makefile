@@ -1,5 +1,7 @@
 .PHONY: default build docker release test clean gcr gcrpush
 
+gcrenv=prod
+
 default: build
 
 build: clean vet
@@ -14,11 +16,11 @@ release: clean vet
     
 gcr: clean vet
 	script/build docker package
-	script/docker none gcr
+	script/docker none gcr $(gcrenv)
 
 gcrpush: clean vet
 	script/build docker package
-	script/docker push gcr
+	script/docker push gcr $(gcrenv)
 
 fmt:
 	goimports -w src
