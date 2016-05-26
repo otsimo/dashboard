@@ -5,7 +5,9 @@ apk add --update libc-dev
 export CC=gcc
 export CGO_ENABLED=1
 
-rm -rf pkg/linux-amd64
+if [ "${BUILD_ENV}" = "prod" ];then
+    rm -rf pkg
+fi
 rm -rf bin
 
-script/build docker
+script/build docker package

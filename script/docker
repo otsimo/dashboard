@@ -17,6 +17,8 @@ else
     GCRENV="-$GCRENV"
 fi
 
+echo "docker building $BUILD_LIST"
+
 for varapp in ${BUILD_LIST}
 do
     app_name=$(echo "$varapp" | grep -o '[^/]*$')
@@ -43,8 +45,9 @@ do
 
         docker build --rm -t ${TAG_NAME} -f "$docker_file" ${target_dir}
 
-        if [ "$1" = "push" ]; then
+        if [ "$COMMAND" = "push" ]; then
             eval "${DOCKER} push ${TAG_NAME}"
+            echo docker pushed ${TAG_NAME}
         fi
     fi
 done

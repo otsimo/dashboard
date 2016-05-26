@@ -4,6 +4,7 @@ import (
 	"dashboard"
 	"dashboard/storage"
 	_ "dashboard/storage/mongodb"
+	_ "dashboard/storage/postgres"
 	"fmt"
 	"os"
 	"strings"
@@ -16,7 +17,7 @@ import (
 var Version string = "DEV"
 var config = dashboard.NewConfig()
 
-func RunAction(c *cli.Context) {
+func RunAction(c *cli.Context) error {
 	config.Debug = c.Bool("debug")
 	config.GrpcPort = c.Int("grpc-port")
 	config.TlsCertFile = c.String("tls-cert-file")
@@ -34,9 +35,8 @@ func RunAction(c *cli.Context) {
 	//find driver name
 	sname := c.String("storage")
 	if sname == "" || sname == "none" {
-		log.Errorln("main.go: storage flag is missing or it cannot be 'none'")
 		cli.ShowAppHelp(c)
-		return
+		return fmt.Errorf("main.go: storage flag is missing or it cannot be 'none'")
 	}
 
 	//get driver
@@ -53,6 +53,7 @@ func RunAction(c *cli.Context) {
 
 	server := dashboard.NewServer(config, s)
 	server.Listen()
+	return nil
 }
 
 func withEnvs(prefix string, flags []cli.Flag) []cli.Flag {
@@ -105,16 +106,18 @@ func main() {
 	app.Action = RunAction
 
 	log.Infoln("running", app.Name, "version:", app.Version)
-	app.Run(os.Args)
+	if err := app.Run(os.Args); err != nil {
+		log.Errorf("failed to run app %v", err)
+	}
 }
 
 func init() {
-	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
+	log.SetFormatter(&log.TextFormatter{FullTimestamp: true, DisableColors:true})
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.InfoLevel)
 	var l = &log.Logger{
 		Out:       os.Stdout,
-		Formatter: &log.TextFormatter{FullTimestamp: true},
+		Formatter: &log.TextFormatter{FullTimestamp: true, DisableColors:true},
 		Hooks:     make(log.LevelHooks),
 		Level:     log.GetLevel(),
 	}

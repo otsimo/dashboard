@@ -18,14 +18,14 @@ type Item struct {
 
 type ProviderUserInfo struct {
 	Name      string    `bson:"name"`
-	UserID    string    `bson:"-"`
+	UserID    string    `bson:"-" gorm:"index"`
 	FetchedAt time.Time `bson:"fetched_at"`
 	ExpiresAt time.Time `bson:"expires_at"`
 }
 
 type DashboardUser struct {
 	ID        string             `bson:"_id" gorm:"primary_key"`
-	Providers []ProviderUserInfo `bson:"providers"`
+	Providers []ProviderUserInfo `bson:"providers" gorm:"ForeignKey:UserID"`
 }
 
 func (i *Item) GetCard() *otsimopb.Card {
