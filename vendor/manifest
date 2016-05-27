@@ -223,7 +223,7 @@
 		{
 			"importpath": "github.com/otsimo/otsimopb",
 			"repository": "https://github.com/otsimo/otsimopb",
-			"revision": "04edf4dbede8ea1bbbdb91b2cc78977c36100d8b",
+			"revision": "fa586a88e0430729a3435619f3609c76b01e1511",
 			"branch": "master"
 		},
 		{

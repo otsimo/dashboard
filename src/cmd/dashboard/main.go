@@ -112,12 +112,12 @@ func main() {
 }
 
 func init() {
-	log.SetFormatter(&log.TextFormatter{FullTimestamp: true, DisableColors:true})
+	log.SetFormatter(&log.TextFormatter{FullTimestamp: true, DisableColors: true})
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.InfoLevel)
 	var l = &log.Logger{
 		Out:       os.Stdout,
-		Formatter: &log.TextFormatter{FullTimestamp: true, DisableColors:true},
+		Formatter: &log.TextFormatter{FullTimestamp: true, DisableColors: true},
 		Hooks:     make(log.LevelHooks),
 		Level:     log.GetLevel(),
 	}

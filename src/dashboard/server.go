@@ -105,7 +105,7 @@ func readConfig(configPath string) (*ServiceConfig, error) {
 		data, err = ioutil.ReadFile(configPath)
 		if err != nil {
 			log.Errorf("failed to read configuration file, %+v", err)
-			time.Sleep(time.Second * time.Duration(5 * (i + 1)))
+			time.Sleep(time.Second * time.Duration(5*(i+1)))
 			continue
 		}
 		desc := &ServiceConfig{}
@@ -118,7 +118,7 @@ func readConfig(configPath string) (*ServiceConfig, error) {
 		}
 		if err != nil {
 			log.Errorf("failed to unmarshal configuration file, %+v", err)
-			time.Sleep(time.Second * time.Duration(5 * (i + 1)))
+			time.Sleep(time.Second * time.Duration(5*(i+1)))
 			continue
 		}
 		return desc, nil
@@ -139,10 +139,17 @@ func (s *Server) RereadConfig() {
 		return
 	}
 	for _, v := range sc.Providers {
+		founded := false
 		for _, sp := range s.providers {
 			if sp.Name() == v.Name {
 				sp.MergeConfig(v)
+				founded = true
 			}
+		}
+		if !founded {
+			p := NewProvider(v)
+			s.providers = append(s.providers, p)
+			go p.Init()
 		}
 	}
 }

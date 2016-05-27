@@ -59,6 +59,7 @@
 		CardApplink
 		CardAnalysis
 		Card
+		ProviderGetRequest
 		ProviderItem
 		ProviderItems
 		ProviderInfoRequest

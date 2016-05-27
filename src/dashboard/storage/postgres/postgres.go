@@ -2,15 +2,16 @@ package postgres
 
 import (
 	"dashboard/storage"
+	"time"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
 	"github.com/jinzhu/gorm"
-	"time"
 )
 
 const (
 	PostgresDriverName string = "postgres"
-	dsnFlag string = "postgres-dsn"
+	dsnFlag            string = "postgres-dsn"
 )
 
 func init() {
@@ -67,4 +68,3 @@ func (d *PostgresDriver) GetItems(userID, provider string, from int64) ([]*stora
 	}
 	return items, nil
 }
-

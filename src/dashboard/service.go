@@ -8,6 +8,8 @@ import (
 	"github.com/Sirupsen/logrus"
 	pb "github.com/otsimo/otsimopb"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 type taskResult struct {
@@ -17,36 +19,26 @@ type taskResult struct {
 	cache    []*storage.Item
 }
 
-func workerSync(p *Provider, req pb.DashboardGetRequest, timeout int64, results chan<- taskResult) {
+func workerSync(p *Provider, req pb.ProviderGetRequest, timeout int64, results chan<- taskResult) {
 	client := p.Get()
 	if client == nil {
 		p.Close()
 		client = p.Get()
 	}
-	c1 := make(chan taskResult, 1)
-	go func() {
-		pi, err := client.Get(context.Background(), &req)
-		if err != nil {
-			logrus.Errorf("failed to get items from %s, err=%v", p.config.Name, err)
-			c1 <- taskResult{success: false, provider: p.config.Name}
-			return
-		}
-		logrus.Debugf("service.go:worker: get results from provider %s, count=%d", p.config.Name, len(pi.Items))
-		c1 <- taskResult{success: true, items: pi, provider: p.config.Name}
-	}()
-	select {
-	case res := <-c1:
-		results <- res
-	case <-time.After(time.Millisecond * time.Duration(timeout)):
-		logrus.Errorf("service.go:worker: timeout, failed to get result from provider %s", p.config.Name)
-		c1 <- taskResult{success: false, provider: p.config.Name}
+	ctx, _ := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(timeout))
+	pi, err := client.Get(ctx, &req)
+	if err != nil {
+		logrus.Errorf("failed to get items from %s, err=%v", p.config.Name, err)
+		results <- taskResult{success: false, provider: p.config.Name}
+	} else {
+		results <- taskResult{success: true, items: pi, provider: p.config.Name}
 	}
 }
 
-func (d *Server) workerSyncDB(p *Provider, req pb.DashboardGetRequest, timeout int64, results chan<- taskResult) {
+func (d *Server) workerSyncDB(p *Provider, req pb.ProviderGetRequest, timeout int64, results chan<- taskResult) {
 	c1 := make(chan taskResult, 1)
 	go func() {
-		items, err := d.Storage.GetItems(req.ProfileId, p.config.Name, req.LastTimeDataFetched)
+		items, err := d.Storage.GetItems(req.Request.ProfileId, p.config.Name, req.Request.LastTimeDataFetched)
 		if err != nil {
 			logrus.Errorf("failed to get items from %s db cache, err=%v", p.config.Name, err)
 			c1 <- taskResult{success: false, provider: p.config.Name}
@@ -59,7 +51,7 @@ func (d *Server) workerSyncDB(p *Provider, req pb.DashboardGetRequest, timeout i
 	case res := <-c1:
 		results <- res
 	case <-time.After(time.Millisecond * time.Duration(timeout)):
-		logrus.Errorf("service.go:worker: timeout, failed to get result from provider %s", p.config.Name)
+		logrus.Errorf("service.go:dbworker: timeout, failed to get result from provider %s", p.config.Name)
 		c1 <- taskResult{success: false, provider: p.config.Name}
 	}
 }
@@ -95,13 +87,23 @@ func (d *Server) processResultSync(to *pb.DashboardItems, req *pb.DashboardGetRe
 
 func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.DashboardItems, error) {
 	logrus.Infof("service.go:GET: %+v", in)
-
+	uinfo, err := checkContext(ctx, d.Client)
+	if err != nil {
+		return nil, grpc.Errorf(codes.PermissionDenied, "PermissionDenied:%v", err)
+	}
+	if in.ProfileId != uinfo.UserID {
+		return nil, grpc.Errorf(codes.PermissionDenied, "PermissionDenied: User cannot see others dashboard")
+	}
 	usr := d.Storage.GetUser(in.ProfileId)
 	//todo(sercan) filter providers by users info,
 	n := len(d.providers)
 
 	results := make(chan taskResult, n)
 	defer close(results)
+	req := pb.ProviderGetRequest{
+		Request:    in,
+		UserGroups: []string{uinfo.UserGroup},
+	}
 	now := time.Now().Unix()
 	for _, v := range d.providers {
 		fromDB := false
@@ -113,9 +115,9 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Dashb
 			}
 		}
 		if fromDB {
-			go d.workerSyncDB(v, *in, 1000, results)
+			go d.workerSyncDB(v, req, 1000, results)
 		} else {
-			go workerSync(v, *in, 1000, results)
+			go workerSync(v, req, 2000, results)
 		}
 	}
 	res := &pb.DashboardItems{

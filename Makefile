@@ -4,21 +4,21 @@ gcrenv=prod
 
 default: build
 
-build: clean vet
+build: clean
 	script/build none none
 
-docker: clean vet
+docker: clean
 	script/build docker package
 
-release: clean vet
+release: clean
 	script/build docker
 	script/docker
     
-gcr: clean vet
+gcr: clean
 	script/build docker package
 	script/docker none gcr $(gcrenv)
 
-gcrpush: clean vet
+gcrpush: clean
 	script/build docker package
 	script/docker push gcr $(gcrenv)
 

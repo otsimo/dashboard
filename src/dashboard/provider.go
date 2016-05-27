@@ -105,7 +105,7 @@ func (ac *Provider) Name() string {
 
 func NewProvider(cnf ProviderConfig) *Provider {
 	return &Provider{
-		config:cnf,
-		name:cnf.Name,
+		config: cnf,
+		name:   cnf.Name,
 	}
 }

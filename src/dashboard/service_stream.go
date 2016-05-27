@@ -6,9 +6,11 @@ import (
 	"github.com/Sirupsen/logrus"
 	pb "github.com/otsimo/otsimopb"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
-func workerAsync(p *Provider, req pb.DashboardGetRequest, timeout int64, results chan<- taskResult, done <-chan bool, stream pb.DashboardService_GetStreamServer) {
+func workerAsync(p *Provider, req pb.ProviderGetRequest, timeout int64, results chan<- taskResult, done <-chan bool, stream pb.DashboardService_GetStreamServer) {
 	//todo(sercan) look for caches, if a valid cached request is valid return it
 	client := p.Get()
 	if client == nil {
@@ -44,7 +46,13 @@ func workerAsync(p *Provider, req pb.DashboardGetRequest, timeout int64, results
 
 func (d *Server) GetStream(in *pb.DashboardGetRequest, stream pb.DashboardService_GetStreamServer) error {
 	logrus.Infof("service.go:GET_STREAM: %+v", in)
-
+	uinfo, err := checkContext(stream.Context(), d.Client)
+	if err != nil {
+		return grpc.Errorf(codes.PermissionDenied, "PermissionDenied:%v", err)
+	}
+	if in.ProfileId != uinfo.UserID {
+		return grpc.Errorf(codes.PermissionDenied, "PermissionDenied: User cannot see others dashboard")
+	}
 	//todo(sercan) filter providers by users info,
 	n := len(d.providers)
 
@@ -52,9 +60,12 @@ func (d *Server) GetStream(in *pb.DashboardGetRequest, stream pb.DashboardServic
 	defer close(results)
 	done := make(chan bool, 1)
 	defer close(done)
-
+	req := pb.ProviderGetRequest{
+		Request:    in,
+		UserGroups: []string{uinfo.UserGroup},
+	}
 	for _, v := range d.providers {
-		go workerAsync(v, *in, 10000, results, done, stream)
+		go workerAsync(v, req, 10000, results, done, stream)
 	}
 
 	for a := 1; a <= n; a++ {

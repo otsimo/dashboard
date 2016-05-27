@@ -14,10 +14,15 @@ option go_package = "otsimopb";
 option java_multiple_files = true;
 option java_package = "com.otsimo.grpc";
 
+message ProviderGetRequest{
+    DashboardGetRequest request = 1;
+    repeated string user_groups = 2;
+}
+
 // DashboardProvider
 service DashboardProvider {
     rpc Info(ProviderInfoRequest) returns (ProviderInfo);
-    rpc Get(DashboardGetRequest) returns (ProviderItems);
+    rpc Get(ProviderGetRequest) returns (ProviderItems);
 }
 
 message ProviderItem{

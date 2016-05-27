@@ -117,10 +117,10 @@ func NewItem(in *pb.DashboardGetRequest, p *pb.Profile, delta, score, id int64) 
 	}
 }
 
-func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.ProviderItems, error) {
+func (d *Server) Get(ctx context.Context, in *pb.ProviderGetRequest) (*pb.ProviderItems, error) {
 	log.Infof("server.go:GET: %+v", in)
 	api := d.api.Get()
-	p, err := api.GetProfile(context.Background(), &pb.GetProfileRequest{Id: in.ProfileId})
+	p, err := api.GetProfile(context.Background(), &pb.GetProfileRequest{Id: in.Request.ProfileId})
 	if err != nil {
 		log.Errorf("server.go:GET: profile not found")
 		return nil, errors.New("Not found")
@@ -128,8 +128,8 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Provi
 	now := time.Now().Unix()
 
 	res := &pb.ProviderItems{
-		ProfileId: in.ProfileId,
-		ChildId:   in.ChildId,
+		ProfileId: in.Request.ProfileId,
+		ChildId:   in.Request.ChildId,
 		CreatedAt: now,
 	}
 	delta := now - p.CreatedAt
@@ -141,7 +141,7 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Provi
 		res.Cacheable = true
 		res.Ttl = OneWeek - delta
 		res.Items = make([]*pb.ProviderItem, 1)
-		res.Items[0] = NewItem(in, p, delta, 490, 1)
+		res.Items[0] = NewItem(in.Request, p, delta, 490, 1)
 	} else {
 		res.Cacheable = true
 		res.Ttl = OneWeek * 4
