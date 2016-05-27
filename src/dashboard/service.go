@@ -62,7 +62,7 @@ func (d *Server) processResultSync(to *pb.DashboardItems, req *pb.DashboardGetRe
 	}
 	//todo(sercan) cache result
 	name := ""
-	score := 1
+	score := float32(1.0)
 	for _, v := range d.providers {
 		if v.name == res.provider {
 			v.configLock.RLock()
