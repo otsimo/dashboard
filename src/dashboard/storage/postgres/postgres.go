@@ -7,11 +7,12 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 const (
 	PostgresDriverName string = "postgres"
-	dsnFlag            string = "postgres-dsn"
+	dsnFlag string = "postgres-dsn"
 )
 
 func init() {
@@ -25,16 +26,26 @@ func init() {
 
 func newPostgresDriver(ctx *cli.Context) (storage.Driver, error) {
 	url := ctx.String(dsnFlag)
-
 	db, err := gorm.Open("postgres", url)
 	if err != nil {
 		return nil, err
 	}
-	it := storage.Item{}
+	return postgresDriverFromDB(db)
+}
+
+func postgresDriverFromDB(db *gorm.DB) (storage.Driver, error) {
+	var it storage.Item
+	var du storage.DashboardUser
+	var ui storage.ProviderUserInfo
 	if !db.HasTable(&it) {
 		db.CreateTable(&it)
 	}
-
+	if !db.HasTable(&du) {
+		db.CreateTable(&du)
+	}
+	if !db.HasTable(&ui) {
+		db.CreateTable(&ui)
+	}
 	logrus.Debug("postgres.go: connected to db")
 	md := &PostgresDriver{
 		db: db,
@@ -51,11 +62,13 @@ func (d PostgresDriver) Name() string {
 }
 
 func (d *PostgresDriver) GetUser(id string) *storage.DashboardUser {
-	du := storage.DashboardUser{}
-	if err := d.db.Where("id = ?", id).First(&du).Error; err != nil {
+	du := storage.DashboardUser{ID:id}
+	var a []storage.ProviderUserInfo
+	if err := d.db.Model(&du).Related(&a, "Providers").Error; err != nil {
 		logrus.Errorf("postgres.go: failed to get err %v", err)
 		return &storage.DashboardUser{ID: id}
 	}
+	du.Providers = a
 	return &du
 }
 

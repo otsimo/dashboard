@@ -18,13 +18,13 @@ type Item struct {
 
 type ProviderUserInfo struct {
 	Name      string    `bson:"name"`
-	UserID    string    `bson:"-" gorm:"index"`
+	UserID    string    `bson:"-"`
 	FetchedAt time.Time `bson:"fetched_at"`
 	ExpiresAt time.Time `bson:"expires_at"`
 }
 
 type DashboardUser struct {
-	ID        string             `bson:"_id" gorm:"primary_key"`
+	ID        string             `bson:"_id" gorm:"type:varchar(36);primary_key"`
 	Providers []ProviderUserInfo `bson:"providers" gorm:"ForeignKey:UserID"`
 }
 
