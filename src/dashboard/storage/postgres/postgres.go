@@ -54,7 +54,7 @@ func (d *PostgresDriver) GetUser(id string) *storage.DashboardUser {
 	du := storage.DashboardUser{}
 	if err := d.db.Where("id = ?", id).First(&du).Error; err != nil {
 		logrus.Errorf("postgres.go: failed to get err %v", err)
-		return nil
+		return &storage.DashboardUser{ID: id}
 	}
 	return &du
 }

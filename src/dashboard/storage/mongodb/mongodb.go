@@ -51,7 +51,7 @@ func (d *MongoDBDriver) GetUser(id string) *storage.DashboardUser {
 	c := d.Session.DB("").C("DashboardUser")
 	u := &storage.DashboardUser{}
 	if err := c.FindId(id).One(u); err != nil {
-		return &storage.DashboardUser{}
+		return &storage.DashboardUser{ID: id}
 	}
 	return u
 }

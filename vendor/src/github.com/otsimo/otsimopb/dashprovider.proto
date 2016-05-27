@@ -51,7 +51,7 @@ message ProviderInfoRequest{
 }
 
 message ProviderInfo{
-    //todo add some information about provider service,    
+    repeated string serves_for = 1;
 }
 
 

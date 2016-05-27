@@ -19,22 +19,6 @@ type taskResult struct {
 	cache    []*storage.Item
 }
 
-func workerSync(p *Provider, req pb.ProviderGetRequest, timeout int64, results chan<- taskResult) {
-	client := p.Get()
-	if client == nil {
-		p.Close()
-		client = p.Get()
-	}
-	ctx, _ := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(timeout))
-	pi, err := client.Get(ctx, &req)
-	if err != nil {
-		logrus.Errorf("failed to get items from %s, err=%v", p.config.Name, err)
-		results <- taskResult{success: false, provider: p.config.Name}
-	} else {
-		results <- taskResult{success: true, items: pi, provider: p.config.Name}
-	}
-}
-
 func (d *Server) workerSyncDB(p *Provider, req pb.ProviderGetRequest, timeout int64, results chan<- taskResult) {
 	c1 := make(chan taskResult, 1)
 	go func() {
@@ -56,21 +40,41 @@ func (d *Server) workerSyncDB(p *Provider, req pb.ProviderGetRequest, timeout in
 	}
 }
 
+func workerSync(p *Provider, req pb.ProviderGetRequest, timeout int64, results chan<- taskResult) {
+	client := p.Get()
+	if client == nil {
+		p.Close()
+		client = p.Get()
+	}
+	ctx, _ := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(timeout))
+	pi, err := client.Get(ctx, &req)
+	if err != nil {
+		logrus.Errorf("failed to get items from %s, err=%v", p.config.Name, err)
+		results <- taskResult{success: false, provider: p.config.Name}
+	} else {
+		results <- taskResult{success: true, items: pi, provider: p.config.Name}
+	}
+}
+
 func (d *Server) processResultSync(to *pb.DashboardItems, req *pb.DashboardGetRequest, res taskResult) {
 	if !res.success {
 		return
 	}
 	//todo(sercan) cache result
-	var pr *ProviderConfig
+	name := ""
+	score := 1
 	for _, v := range d.providers {
-		if v.config.Name == res.provider {
-			pr = &v.config
+		if v.name == res.provider {
+			v.configLock.RLock()
+			name = v.name
+			score = v.config.ScoreMultiplier
+			v.configLock.RUnlock()
 		}
 	}
 	for _, v := range res.items.Items {
 		item := v.Item
-		item.ProviderWeight = pr.ScoreMultiplier
-		item.ProviderName = pr.Name
+		item.ProviderWeight = score
+		item.ProviderName = name
 		//todo(sercan) possible race?
 		to.Items = append(to.Items, item)
 	}
@@ -79,8 +83,8 @@ func (d *Server) processResultSync(to *pb.DashboardItems, req *pb.DashboardGetRe
 		if item == nil {
 			continue
 		}
-		item.ProviderWeight = pr.ScoreMultiplier
-		item.ProviderName = pr.Name
+		item.ProviderWeight = score
+		item.ProviderName = name
 		to.Items = append(to.Items, item)
 	}
 }

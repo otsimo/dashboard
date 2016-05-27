@@ -10,62 +10,51 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func workerAsync(p *Provider, req pb.ProviderGetRequest, timeout int64, results chan<- taskResult, done <-chan bool, stream pb.DashboardService_GetStreamServer) {
+type DashboardStream interface {
+	Send(*pb.Card) error
+}
+
+func workerAsync(p *Provider, req pb.ProviderGetRequest, timeout int64, results chan<- bool, stream DashboardStream) {
 	//todo(sercan) look for caches, if a valid cached request is valid return it
 	client := p.Get()
-	if client == nil {
-		p.Close()
-		client = p.Get()
+	ctx, _ := context.WithTimeout(context.Background(), time.Millisecond*time.Duration(timeout))
+	pi, err := client.Get(ctx, &req)
+	if err != nil {
+		logrus.Errorf("service_stream.go:worker: failed to get items from %s, err=%v", p.config.Name, err)
+		results <- false
+		return
 	}
-	c1 := make(chan taskResult, 1)
-	go func() {
-		pi, err := client.Get(context.Background(), &req)
-		if err != nil {
-			logrus.Errorf("failed to get items from %s, err=%v", p.config.Name, err)
-			c1 <- taskResult{success: false, provider: p.config.Name}
-			return
-		}
-		logrus.Debugf("service.go:worker: get results from provider %s, count=%d", p.config.Name, len(pi.Items))
-		for _, v := range pi.Items {
-			v.Item.ProviderWeight = p.config.ScoreMultiplier
-			v.Item.ProviderName = p.config.Name
-			stream.Send(v.Item)
-		}
-		c1 <- taskResult{success: true, provider: p.config.Name}
-	}()
-	select {
-	case res := <-c1:
-		results <- res
-	case <-time.After(time.Millisecond * time.Duration(timeout)):
-		logrus.Errorf("service.go:worker: timeout, failed to get result from provider %s", p.config.Name)
-		c1 <- taskResult{success: false, provider: p.config.Name}
-	case <-done:
-		c1 <- taskResult{success: false, provider: p.config.Name}
+	logrus.Debugf("service_stream.go:worker: get results from provider %s, count=%d", p.config.Name, len(pi.Items))
+	for _, v := range pi.Items {
+		p.configLock.RLock()
+		v.Item.ProviderWeight = p.config.ScoreMultiplier
+		p.configLock.RUnlock()
+
+		v.Item.ProviderName = p.Name()
+		stream.Send(v.Item)
 	}
+	results <- true
 }
 
 func (d *Server) GetStream(in *pb.DashboardGetRequest, stream pb.DashboardService_GetStreamServer) error {
 	logrus.Infof("service.go:GET_STREAM: %+v", in)
 	uinfo, err := checkContext(stream.Context(), d.Client)
 	if err != nil {
-		return grpc.Errorf(codes.PermissionDenied, "PermissionDenied:%v", err)
+		return grpc.Errorf(codes.PermissionDenied, "PermissionDenied: %v", err)
 	}
 	if in.ProfileId != uinfo.UserID {
 		return grpc.Errorf(codes.PermissionDenied, "PermissionDenied: User cannot see others dashboard")
 	}
-	//todo(sercan) filter providers by users info,
 	n := len(d.providers)
-
-	results := make(chan taskResult, n)
+	results := make(chan bool, n)
 	defer close(results)
-	done := make(chan bool, 1)
-	defer close(done)
+
 	req := pb.ProviderGetRequest{
 		Request:    in,
 		UserGroups: []string{uinfo.UserGroup},
 	}
 	for _, v := range d.providers {
-		go workerAsync(v, req, 10000, results, done, stream)
+		go workerAsync(v, req, 2000, results, stream)
 	}
 
 	for a := 1; a <= n; a++ {
