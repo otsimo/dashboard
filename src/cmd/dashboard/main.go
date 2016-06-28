@@ -115,11 +115,10 @@ func init() {
 	log.SetFormatter(&log.TextFormatter{FullTimestamp: true, DisableColors: true})
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.InfoLevel)
-	var l = &log.Logger{
+	grpclog.SetLogger(&log.Logger{
 		Out:       os.Stdout,
 		Formatter: &log.TextFormatter{FullTimestamp: true, DisableColors: true},
 		Hooks:     make(log.LevelHooks),
 		Level:     log.GetLevel(),
-	}
-	grpclog.SetLogger(l)
+	})
 }

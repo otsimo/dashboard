@@ -235,7 +235,7 @@
 		{
 			"importpath": "github.com/sercand/kuberesolver",
 			"repository": "https://github.com/sercand/kuberesolver",
-			"revision": "e1a2b6c08ad95e2938e8b6521daf91a55715b828",
+			"revision": "8e47b1d5216d045485941193afc46ef9f68bccfe",
 			"branch": "master"
 		},
 		{
