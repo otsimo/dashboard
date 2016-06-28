@@ -26,6 +26,7 @@ type Provider struct {
 	client     otsimopb.DashboardProviderClient
 	configLock sync.RWMutex
 	name       string
+	balancer   *kuberesolver.Balancer
 }
 
 func (ac *Provider) Close() {
@@ -48,8 +49,7 @@ func (ac *Provider) Get() otsimopb.DashboardProviderClient {
 	} else {
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(roots, "")))
 	}
-	balancer := kuberesolver.New()
-	conn, err := balancer.Dial(ac.config.ServiceURL, opts...)
+	conn, err := ac.balancer.Dial(ac.config.ServiceURL, opts...)
 	if err != nil {
 		logrus.Errorf("provider.go: did not connect to remote provider service: %v", err)
 		return nil
@@ -105,9 +105,10 @@ func (ac *Provider) Name() string {
 	return ac.name
 }
 
-func NewProvider(cnf ProviderConfig) *Provider {
+func NewProvider(cnf ProviderConfig, balancer *kuberesolver.Balancer) *Provider {
 	return &Provider{
-		config: cnf,
-		name:   cnf.Name,
+		config:   cnf,
+		name:     cnf.Name,
+		balancer: balancer,
 	}
 }

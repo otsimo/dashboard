@@ -14,6 +14,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/ghodss/yaml"
 	pb "github.com/otsimo/otsimopb"
+	"github.com/sercand/kuberesolver"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health"
@@ -30,6 +31,7 @@ type Server struct {
 	Client       *Client
 	TokenManager *ClientCredsTokenManager
 	providers    []*Provider
+	balancer     *kuberesolver.Balancer
 }
 
 func (s *Server) Listen() {
@@ -66,8 +68,9 @@ func NewServer(config *CommandConfig, driver storage.Driver) *Server {
 		panic(err)
 	}
 	server := &Server{
-		Config:  config,
-		Storage: driver,
+		Config:   config,
+		Storage:  driver,
+		balancer: kuberesolver.New(),
 	}
 	var tlsConfig tls.Config
 	if config.TrustedCAFile != "" {
@@ -88,7 +91,7 @@ func NewServer(config *CommandConfig, driver storage.Driver) *Server {
 	}
 	server.providers = make([]*Provider, len(sc.Providers))
 	for i, v := range sc.Providers {
-		server.providers[i] = NewProvider(v)
+		server.providers[i] = NewProvider(v, server.balancer)
 	}
 	if config.WatchConfigFile {
 		go watchFile(config.ConfigPath, server)
@@ -147,7 +150,7 @@ func (s *Server) RereadConfig() {
 			}
 		}
 		if !founded {
-			p := NewProvider(v)
+			p := NewProvider(v, s.balancer)
 			s.providers = append(s.providers, p)
 			go p.Init()
 		}
