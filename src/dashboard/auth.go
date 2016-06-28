@@ -8,7 +8,7 @@ import (
 )
 
 type OIDCCredentials interface {
-	Credentials() credentials.Credentials
+	Credentials() credentials.PerRPCCredentials
 }
 
 // oauthAccess supplies credentials from a given token.
@@ -18,7 +18,7 @@ type oauthAccess struct {
 }
 
 // NewOauthAccess constructs the credentials using a given token.
-func NewOauthAccess(tm *ClientCredsTokenManager) credentials.Credentials {
+func NewOauthAccess(tm *ClientCredsTokenManager) credentials.PerRPCCredentials {
 	return &oauthAccess{tm: tm, RequireTLS: true}
 }
 

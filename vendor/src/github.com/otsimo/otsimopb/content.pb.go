@@ -169,7 +169,7 @@ var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion2
+const _ = grpc.SupportPackageIsVersion3
 
 // Client API for ContentService service
 
@@ -264,7 +264,8 @@ var _ContentService_serviceDesc = grpc.ServiceDesc{
 			Handler:    _ContentService_Get_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: fileDescriptorContent,
 }
 
 func (m *Content) Marshal() (data []byte, err error) {

@@ -25,7 +25,7 @@ var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion2
+const _ = grpc.SupportPackageIsVersion3
 
 // Client API for ApiService service
 
@@ -454,7 +454,8 @@ var _ApiService_serviceDesc = grpc.ServiceDesc{
 			Handler:    _ApiService_UpdateGameIndices_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: fileDescriptorApi,
 }
 
 var fileDescriptorApi = []byte{

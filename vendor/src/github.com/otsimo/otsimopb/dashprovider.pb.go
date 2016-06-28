@@ -93,7 +93,7 @@ var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion2
+const _ = grpc.SupportPackageIsVersion3
 
 // Client API for DashboardProvider service
 
@@ -188,7 +188,8 @@ var _DashboardProvider_serviceDesc = grpc.ServiceDesc{
 			Handler:    _DashboardProvider_Get_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: fileDescriptorDashprovider,
 }
 
 func (m *ProviderGetRequest) Marshal() (data []byte, err error) {

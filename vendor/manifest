@@ -152,14 +152,14 @@
 		{
 			"importpath": "github.com/gogo/protobuf/gogoproto",
 			"repository": "https://github.com/gogo/protobuf",
-			"revision": "c18eea6ad611eecf94a9ba38471f59706199409e",
+			"revision": "2752d97bbd91927dd1c43296dbf8700e50e2708c",
 			"branch": "master",
 			"path": "/gogoproto"
 		},
 		{
 			"importpath": "github.com/gogo/protobuf/proto",
 			"repository": "https://github.com/gogo/protobuf",
-			"revision": "c18eea6ad611eecf94a9ba38471f59706199409e",
+			"revision": "2752d97bbd91927dd1c43296dbf8700e50e2708c",
 			"branch": "master",
 			"path": "/proto"
 		},
@@ -186,7 +186,7 @@
 		{
 			"importpath": "github.com/golang/protobuf/proto",
 			"repository": "https://github.com/golang/protobuf",
-			"revision": "9e6977f30c91c78396e719e164e57f9287fff42c",
+			"revision": "78b168c14fc28c8c711844d210f7ab845083e3b1",
 			"branch": "master",
 			"path": "/proto"
 		},
@@ -223,13 +223,19 @@
 		{
 			"importpath": "github.com/otsimo/otsimopb",
 			"repository": "https://github.com/otsimo/otsimopb",
-			"revision": "9445f978cb1fc951a5d418e0edda9c05d8dd2e8f",
+			"revision": "f280aebaca705383b9e417bd8166540348981bc2",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/pborman/uuid",
 			"repository": "https://github.com/pborman/uuid",
 			"revision": "c55201b036063326c5b1b89ccfe45a184973d073",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/sercand/kuberesolver",
+			"repository": "https://github.com/sercand/kuberesolver",
+			"revision": "e1a2b6c08ad95e2938e8b6521daf91a55715b828",
 			"branch": "master"
 		},
 		{
@@ -304,7 +310,7 @@
 		{
 			"importpath": "google.golang.org/grpc",
 			"repository": "https://github.com/grpc/grpc-go",
-			"revision": "8213ee577a465c1f314d85748fb29e4eeed59baf",
+			"revision": "5c7e717663448ccc1c9ff4d9ce75cdb1cca28121",
 			"branch": "master"
 		},
 		{

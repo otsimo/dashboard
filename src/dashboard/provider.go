@@ -5,6 +5,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/otsimo/otsimopb"
+	"github.com/sercand/kuberesolver"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -47,7 +48,8 @@ func (ac *Provider) Get() otsimopb.DashboardProviderClient {
 	} else {
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(roots, "")))
 	}
-	conn, err := grpc.Dial(ac.config.ServiceURL, opts...)
+	balancer := kuberesolver.New()
+	conn, err := balancer.Dial(ac.config.ServiceURL, opts...)
 	if err != nil {
 		logrus.Errorf("provider.go: did not connect to remote provider service: %v", err)
 		return nil

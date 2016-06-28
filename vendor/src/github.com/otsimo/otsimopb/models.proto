@@ -123,6 +123,8 @@ message GameManifest{
     string developer_name = 17              [(gogoproto.moretags) = "bson:\"developer_name,omitempty\""];
     //DefaultLanguage
     string default_language = 18            [(gogoproto.moretags) = "bson:\"default_language,omitempty\""];
+    //Loading Background Color of the Game
+    string loading_color = 19               [(gogoproto.moretags) = "bson:\"loading_color,omitempty\""];
 }
 
 message Game{

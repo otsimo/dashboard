@@ -608,7 +608,7 @@ var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion2
+const _ = grpc.SupportPackageIsVersion3
 
 // Client API for AnalysisService service
 
@@ -876,6 +876,7 @@ var _AnalysisService_serviceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
+	Metadata: fileDescriptorAnalysis,
 }
 
 func (m *TimeRange) Marshal() (data []byte, err error) {
