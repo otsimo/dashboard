@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-BUILD_IMAGE="sercand/go-docker:1.6.2-v4"
+BUILD_IMAGE="sercand/go-docker"
 
 gcrenv=$1
 
