@@ -66,6 +66,10 @@ func (ac *Provider) Get() otsimopb.DashboardProviderClient {
 func (ac *Provider) Init() {
 	clt := ac.Get()
 	//	if ac.config.RequiresAuth {
+	if clt == nil {
+		logrus.Errorf("provider.go:[%s]: client is nil", ac.name)
+		return
+	}
 	logrus.Infof("provider.go:[%s]: init calling", ac.name)
 	pi, err := clt.Info(context.Background(), &otsimopb.ProviderInfoRequest{})
 	if err == nil {
