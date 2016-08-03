@@ -34,6 +34,7 @@ message OtsimoServices{
     map<string,string> services = 20;
     map<string,string> game_storage_providers = 21;
     map<string,SelfLearningConfig> self_learning_configs = 22;
+    map<string,string> configs = 23;
 }
 
 message DiscoveryRequest {

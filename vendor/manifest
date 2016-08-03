@@ -223,7 +223,7 @@
 		{
 			"importpath": "github.com/otsimo/otsimopb",
 			"repository": "https://github.com/otsimo/otsimopb",
-			"revision": "f280aebaca705383b9e417bd8166540348981bc2",
+			"revision": "7f513dcf6e98acf2e132d0de5c31d5cca5918c90",
 			"branch": "master"
 		},
 		{
@@ -235,7 +235,7 @@
 		{
 			"importpath": "github.com/sercand/kuberesolver",
 			"repository": "https://github.com/sercand/kuberesolver",
-			"revision": "5d07379b8baa5435ee6094f3048bdbe528aa4baa",
+			"revision": "1d2711897d377d09c6a286a8dd80534d02eee50c",
 			"branch": "master"
 		},
 		{

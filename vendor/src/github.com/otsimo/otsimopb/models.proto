@@ -42,6 +42,8 @@ message ChildGameEntry{
     int64 added_at = 5              [(gogoproto.moretags) = "bson:\"added_at\""];
     int64 activation_changed_at = 6 [(gogoproto.moretags) = "bson:\"activation_changed_at\""];
     int64 updated_at = 7            [(gogoproto.moretags) = "bson:\"updated_at\""];
+    bytes local_settings = 8        [(gogoproto.moretags) = "bson:\"local_settings\""];
+    int64 local_settings_version= 9 [(gogoproto.moretags) = "bson:\"local_settings_version\""];
 }
 
 enum Gender{

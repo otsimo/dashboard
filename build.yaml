@@ -1,0 +1,26 @@
+version: 0.6
+outputdir: ./bin
+scripts:
+  fmt: goimports -w src
+projects:
+  - name: dashboard
+    type: go
+    root: src/cmd/dashboard
+    imageName: gcr.io/otsimocloud/dashboard
+    dockerfile: src/cmd/dashboard/Dockerfile
+    after: |
+      cp "$PROJECT_PATH/sample.yaml" $OUT_PATH
+    golang:
+      package: cmd/dashboard
+      cgoEnabled: false
+      ldflags: "-w -X main.Version=${BUILD_VERSION}"
+      builder: gb
+  - name: welcome
+    type: go
+    root: src/cmd/welcome
+    imageName: otsimo/welcome
+    golang:
+      package: cmd/welcome
+      cgoEnabled: false
+      ldflags: "-w -X main.Version=${BUILD_VERSION}"
+      builder: gb

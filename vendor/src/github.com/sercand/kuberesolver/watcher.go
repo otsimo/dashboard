@@ -16,7 +16,7 @@ type watchResult struct {
 
 // A Watcher provides name resolution updates from Kubernetes endpoints
 // identified by name.
-type Watcher struct {
+type watcher struct {
 	target    targetInfo
 	endpoints map[string]interface{}
 	stopCh    chan struct{}
@@ -26,12 +26,12 @@ type Watcher struct {
 }
 
 // Close closes the watcher, cleaning up any open connections.
-func (w *Watcher) Close() {
+func (w *watcher) Close() {
 	close(w.stopCh)
 }
 
 // Next updates the endpoints for the name being watched.
-func (w *Watcher) Next() ([]*naming.Update, error) {
+func (w *watcher) Next() ([]*naming.Update, error) {
 	updates := make([]*naming.Update, 0)
 	updatedEndpoints := make(map[string]interface{})
 	var ep Event
@@ -87,7 +87,7 @@ func (w *Watcher) Next() ([]*naming.Update, error) {
 	for addr := range w.endpoints {
 		if _, ok := updatedEndpoints[addr]; !ok {
 			updates = append(updates, &naming.Update{naming.Delete, addr, nil})
-			grpclog.Printf("kuberesolver: %s DELETED to %s", addr, addr, w.target.target)
+			grpclog.Printf("kuberesolver: %s DELETED from %s", addr, w.target.target)
 		}
 	}
 	w.endpoints = updatedEndpoints
