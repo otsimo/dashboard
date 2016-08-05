@@ -12,7 +12,7 @@ import (
 
 const (
 	PostgresDriverName string = "postgres"
-	dsnFlag string = "postgres-dsn"
+	dsnFlag            string = "postgres-dsn"
 )
 
 func init() {
@@ -62,7 +62,7 @@ func (d PostgresDriver) Name() string {
 }
 
 func (d *PostgresDriver) GetUser(id string) *storage.DashboardUser {
-	du := storage.DashboardUser{ID:id}
+	du := storage.DashboardUser{ID: id}
 	var a []storage.ProviderUserInfo
 	if err := d.db.Model(&du).Related(&a, "Providers").Error; err != nil {
 		logrus.Errorf("postgres.go: failed to get err %v", err)

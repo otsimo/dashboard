@@ -101,7 +101,9 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Dashb
 	usr := d.Storage.GetUser(in.ProfileId)
 	//todo(sercan) filter providers by users info,
 	n := len(d.providers)
-
+	if in.Language == "" {
+		in.Language = d.Config.DefaultLanguage
+	}
 	results := make(chan taskResult, n)
 	defer close(results)
 	req := pb.ProviderGetRequest{

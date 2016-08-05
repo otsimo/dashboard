@@ -26,6 +26,7 @@ func RunAction(c *cli.Context) error {
 	config.ClientSecret = c.String("client-secret")
 	config.AuthDiscovery = c.String("discovery")
 	config.ConfigPath = c.String("config-path")
+	config.DefaultLanguage = c.String("default-lang")
 	config.WatchConfigFile = c.Bool("watch-config")
 	config.NoAuth = c.Bool("no-auth")
 
@@ -94,6 +95,7 @@ func main() {
 		cli.StringFlag{Name: "client-secret", Value: "", Usage: "client secret"},
 		cli.StringFlag{Name: "discovery", Value: "https://connect.otsimo.com", Usage: "auth discovery url"},
 		cli.StringFlag{Name: "config-path", Value: "config.yaml", Usage: "config file path"},
+		cli.StringFlag{Name: "default-lang", Value: "", Usage: "default language"},
 		cli.BoolFlag{Name: "debug, d", Usage: "enable verbose log"},
 		cli.BoolFlag{Name: "watch-config", Usage: "watch configuration file for changes"},
 		cli.BoolFlag{Name: "no-auth", Usage: "do not try to get an access token"},

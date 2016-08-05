@@ -18,6 +18,7 @@ type CommandConfig struct {
 	ConfigPath      string
 	WatchConfigFile bool
 	NoAuth          bool
+	DefaultLanguage string
 }
 
 func (c *CommandConfig) GetGrpcPortString() string {
