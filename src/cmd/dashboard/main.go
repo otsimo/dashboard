@@ -18,18 +18,6 @@ var Version string = "DEV"
 var config = dashboard.NewConfig()
 
 func RunAction(c *cli.Context) error {
-	config.Debug = c.Bool("debug")
-	config.GrpcPort = c.Int("grpc-port")
-	config.TlsCertFile = c.String("tls-cert-file")
-	config.TlsKeyFile = c.String("tls-key-file")
-	config.ClientID = c.String("client-id")
-	config.ClientSecret = c.String("client-secret")
-	config.AuthDiscovery = c.String("discovery")
-	config.ConfigPath = c.String("config-path")
-	config.DefaultLanguage = c.String("default-lang")
-	config.WatchConfigFile = c.Bool("watch-config")
-	config.NoAuth = c.Bool("no-auth")
-
 	if config.Debug {
 		log.SetLevel(log.DebugLevel)
 	}
@@ -37,24 +25,23 @@ func RunAction(c *cli.Context) error {
 	sname := c.String("storage")
 	if sname == "" || sname == "none" {
 		cli.ShowAppHelp(c)
-		return fmt.Errorf("main.go: storage flag is missing or it cannot be 'none'")
+		return fmt.Errorf("main.go: storage flag='%s' is invalid", sname)
 	}
 
 	//get driver
 	driver := storage.GetDriver(sname)
 	if driver == nil {
-		log.Fatalf("main.go: storage driver '%s' not found\n", sname)
+		return fmt.Errorf("main.go: storage driver '%s' not found\n", sname)
 	}
 
 	//load storage driver
 	s, err := driver.New(c)
 	if err != nil {
-		log.Fatal("main.go: error while creating new storage driver:", err, s)
+		return fmt.Errorf("main.go: error while creating new storage[%s] driver: %v", s, err)
 	}
 
 	server := dashboard.NewServer(config, s)
-	server.Listen()
-	return nil
+	return server.Listen()
 }
 
 func withEnvs(prefix string, flags []cli.Flag) []cli.Flag {
@@ -65,11 +52,11 @@ func withEnvs(prefix string, flags []cli.Flag) []cli.Flag {
 		env = prefix + "_" + strings.ToUpper(strings.Replace(spr[0], "-", "_", -1))
 		switch v := f.(type) {
 		case cli.IntFlag:
-			flgs = append(flgs, cli.IntFlag{Name: v.Name, Value: v.Value, Usage: v.Usage, EnvVar: env})
+			flgs = append(flgs, cli.IntFlag{Name: v.Name, Destination: v.Destination, Value: v.Value, Usage: v.Usage, EnvVar: env})
 		case cli.StringFlag:
-			flgs = append(flgs, cli.StringFlag{Name: v.Name, Value: v.Value, Usage: v.Usage, EnvVar: env})
+			flgs = append(flgs, cli.StringFlag{Name: v.Name, Destination: v.Destination, Value: v.Value, Usage: v.Usage, EnvVar: env})
 		case cli.BoolFlag:
-			flgs = append(flgs, cli.BoolFlag{Name: v.Name, Usage: v.Usage, EnvVar: env})
+			flgs = append(flgs, cli.BoolFlag{Name: v.Name, Destination: v.Destination, Usage: v.Usage, EnvVar: env})
 		default:
 			fmt.Println("unknown")
 		}
@@ -87,18 +74,19 @@ func main() {
 	var flags []cli.Flag
 
 	flags = []cli.Flag{
-		cli.IntFlag{Name: "grpc-port", Value: dashboard.DefaultGrpcPort, Usage: "grpc server port"},
+		cli.IntFlag{Name: "grpc-port", Destination: &config.GrpcPort, Value: config.GrpcPort, Usage: "grpc server port"},
+		cli.IntFlag{Name: "health-port", Destination: &config.HealthPort, Value: config.HealthPort, Usage: "health check server port"},
 		cli.StringFlag{Name: "storage, s", Value: "none", Usage: fmt.Sprintf("the storage driver. Available drivers: %s", strings.Join(dnames, ", "))},
-		cli.StringFlag{Name: "tls-cert-file", Value: "", Usage: "the server's certificate file for TLS connection"},
-		cli.StringFlag{Name: "tls-key-file", Value: "", Usage: "the server's private key file for TLS connection"},
-		cli.StringFlag{Name: "client-id", Value: "", Usage: "client id"},
-		cli.StringFlag{Name: "client-secret", Value: "", Usage: "client secret"},
-		cli.StringFlag{Name: "discovery", Value: "https://connect.otsimo.com", Usage: "auth discovery url"},
-		cli.StringFlag{Name: "config-path", Value: "config.yaml", Usage: "config file path"},
-		cli.StringFlag{Name: "default-lang", Value: "", Usage: "default language"},
-		cli.BoolFlag{Name: "debug, d", Usage: "enable verbose log"},
-		cli.BoolFlag{Name: "watch-config", Usage: "watch configuration file for changes"},
-		cli.BoolFlag{Name: "no-auth", Usage: "do not try to get an access token"},
+		cli.StringFlag{Name: "tls-cert-file", Destination: &config.TlsCertFile, Usage: "the server's certificate file for TLS connection"},
+		cli.StringFlag{Name: "tls-key-file", Destination: &config.TlsKeyFile, Usage: "the server's private key file for TLS connection"},
+		cli.StringFlag{Name: "client-id", Destination: &config.ClientID, Usage: "client id"},
+		cli.StringFlag{Name: "client-secret", Destination: &config.ClientSecret, Usage: "client secret"},
+		cli.StringFlag{Name: "discovery", Destination: &config.AuthDiscovery, Value: config.AuthDiscovery, Usage: "auth discovery url"},
+		cli.StringFlag{Name: "config-path", Destination: &config.ConfigPath, Value: config.ConfigPath, Usage: "config file path"},
+		cli.StringFlag{Name: "default-lang", Destination: &config.DefaultLanguage, Usage: "default language"},
+		cli.BoolFlag{Name: "debug, d", Destination: &config.Debug, Usage: "enable verbose log"},
+		cli.BoolFlag{Name: "watch-config", Destination: &config.WatchConfigFile, Usage: "watch configuration file for changes"},
+		cli.BoolFlag{Name: "no-auth", Destination: &config.NoAuth, Usage: "do not try to get an access token"},
 	}
 	flags = withEnvs("OTSIMO_DASHBOARD", flags)
 	for _, d := range dnames {

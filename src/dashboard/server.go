@@ -11,13 +11,16 @@ import (
 	"path/filepath"
 	"time"
 
+	"net/http"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/ghodss/yaml"
+	"github.com/otsimo/health"
+	tlsChecker "github.com/otsimo/health/tls"
 	pb "github.com/otsimo/otsimopb"
 	"github.com/sercand/kuberesolver"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
@@ -32,9 +35,17 @@ type Server struct {
 	TokenManager *ClientCredsTokenManager
 	providers    []*Provider
 	balancer     *kuberesolver.Balancer
+	tlsChecker   *tlsChecker.TLSHealthChecker
 }
 
-func (s *Server) Listen() {
+func (s *Server) Healthy() error {
+	if s.tlsChecker != nil {
+		return s.tlsChecker.Healthy()
+	}
+	return nil
+}
+
+func (s *Server) Listen() error {
 	grpcPort := s.Config.GetGrpcPortString()
 	//Listen
 	lis, err := net.Listen("tcp", grpcPort)
@@ -48,18 +59,19 @@ func (s *Server) Listen() {
 			log.Fatalf("server.go: Failed to generate credentials %v", err)
 		}
 		opts = []grpc.ServerOption{grpc.Creds(creds)}
+		s.tlsChecker = tlsChecker.New(s.Config.TlsCertFile, s.Config.TlsKeyFile, time.Hour*24*21)
 	}
+
 	grpcServer := grpc.NewServer(opts...)
 
 	pb.RegisterDashboardServiceServer(grpcServer, s)
-
-	h := health.NewHealthServer()
-	grpc_health_v1.RegisterHealthServer(grpcServer, h)
-	h.SetServingStatus("dashboard", grpc_health_v1.HealthCheckResponse_SERVING)
+	hs := health.New(s.Storage, s)
+	grpc_health_v1.RegisterHealthServer(grpcServer, hs)
 
 	log.Infof("server.go: Binding %s for grpc", grpcPort)
+	go http.ListenAndServe(s.Config.GetHealthPortString(), hs)
 	//Serve
-	grpcServer.Serve(lis)
+	return grpcServer.Serve(lis)
 }
 
 func NewServer(config *CommandConfig, driver storage.Driver) *Server {

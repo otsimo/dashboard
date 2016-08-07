@@ -10,6 +10,7 @@ projects:
     dockerfile: src/cmd/dashboard/Dockerfile
     after: |
       cp "$PROJECT_PATH/sample.yaml" $OUT_PATH
+    run: ./dashboard --help
     golang:
       package: cmd/dashboard
       cgoEnabled: false

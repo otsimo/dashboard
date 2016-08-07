@@ -61,6 +61,10 @@ func (d PostgresDriver) Name() string {
 	return PostgresDriverName
 }
 
+func (d *PostgresDriver) Healthy() error {
+	return d.db.DB().Ping()
+}
+
 func (d *PostgresDriver) GetUser(id string) *storage.DashboardUser {
 	du := storage.DashboardUser{ID: id}
 	var a []storage.ProviderUserInfo

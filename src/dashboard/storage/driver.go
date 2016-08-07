@@ -10,6 +10,7 @@ type Driver interface {
 	Name() string
 	GetUser(id string) *DashboardUser
 	GetItems(userID, provider string, from int64) ([]*Item, error)
+	Healthy() error
 }
 
 type RegisteredDriver struct {

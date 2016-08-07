@@ -47,6 +47,10 @@ func (d MongoDBDriver) Name() string {
 	return MongoDBDriverName
 }
 
+func (d *MongoDBDriver) Healthy() error {
+	return d.Session.Ping()
+}
+
 func (d *MongoDBDriver) GetUser(id string) *storage.DashboardUser {
 	c := d.Session.DB("").C("DashboardUser")
 	u := &storage.DashboardUser{}
