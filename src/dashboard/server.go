@@ -16,7 +16,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/ghodss/yaml"
 	"github.com/otsimo/health"
-	tlsChecker "github.com/otsimo/health/tls"
 	pb "github.com/otsimo/otsimopb"
 	"github.com/sercand/kuberesolver"
 	"google.golang.org/grpc"
@@ -35,13 +34,9 @@ type Server struct {
 	TokenManager *ClientCredsTokenManager
 	providers    []*Provider
 	balancer     *kuberesolver.Balancer
-	tlsChecker   *tlsChecker.TLSHealthChecker
 }
 
 func (s *Server) Healthy() error {
-	if s.tlsChecker != nil {
-		return s.tlsChecker.Healthy()
-	}
 	return nil
 }
 
@@ -59,7 +54,6 @@ func (s *Server) Listen() error {
 			log.Fatalf("server.go: Failed to generate credentials %v", err)
 		}
 		opts = []grpc.ServerOption{grpc.Creds(creds)}
-		s.tlsChecker = tlsChecker.New(s.Config.TlsCertFile, s.Config.TlsKeyFile, time.Hour*24*21)
 	}
 
 	grpcServer := grpc.NewServer(opts...)
