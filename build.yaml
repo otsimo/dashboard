@@ -16,7 +16,7 @@ projects:
       cgoEnabled: false
       ldflags: "-w -X main.Version=${BUILD_VERSION}"
       builder: gb
-    developer:
+    develop:
       ports:
         - "30860:18860"
   - name: welcome
