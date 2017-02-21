@@ -5,23 +5,26 @@ scripts:
 projects:
   - name: dashboard
     type: go
-    root: src/cmd/dashboard
+    root: src/bin/dashboard
     imageName: gcr.io/otsimocloud/dashboard
-    dockerfile: src/cmd/dashboard/Dockerfile
+    dockerfile: src/bin/dashboard/Dockerfile
     after: |
       cp "$PROJECT_PATH/sample.yaml" $OUT_PATH
     run: ./dashboard --help
     golang:
-      package: cmd/dashboard
+      package: bin/dashboard
       cgoEnabled: false
       ldflags: "-w -X main.Version=${BUILD_VERSION}"
       builder: gb
+    developer:
+      ports:
+        - "30860:18860"
   - name: welcome
     type: go
-    root: src/cmd/welcome
+    root: src/bin/welcome
     imageName: otsimo/welcome
     golang:
-      package: cmd/welcome
+      package: bin/welcome
       cgoEnabled: false
       ldflags: "-w -X main.Version=${BUILD_VERSION}"
       builder: gb

@@ -51,7 +51,7 @@ func (d *Server) GetStream(in *pb.DashboardGetRequest, stream pb.DashboardServic
 
 	req := pb.ProviderGetRequest{
 		Request:    in,
-		UserGroups: []string{uinfo.UserGroup},
+		UserGroups: uinfo.UserGroups,
 	}
 	for _, v := range d.providers {
 		go workerAsync(v, req, 2000, results, stream)

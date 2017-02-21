@@ -6,8 +6,8 @@
 # Folders
 _obj
 _test
-bin
-./pkg
+/bin
+/pkg
 .idea
 .vscode
 

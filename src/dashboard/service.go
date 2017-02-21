@@ -108,7 +108,7 @@ func (d *Server) Get(ctx context.Context, in *pb.DashboardGetRequest) (*pb.Dashb
 	defer close(results)
 	req := pb.ProviderGetRequest{
 		Request:    in,
-		UserGroups: []string{uinfo.UserGroup},
+		UserGroups: uinfo.UserGroups,
 	}
 	now := time.Now().Unix()
 	for _, v := range d.providers {

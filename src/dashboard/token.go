@@ -11,15 +11,10 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-const (
-	OtsimoUserTypeClaim = "otsimo.com/typ"
-	OtsimoAdminUserType = "adm"
-)
-
 type userInfo struct {
-	UserID    string
-	Token     jose.JWT
-	UserGroup string
+	UserID     string
+	Token      jose.JWT
+	UserGroups []string
 }
 
 func getJWTToken(ctx context.Context) (jose.JWT, error) {
@@ -66,10 +61,9 @@ func checkContext(ctx context.Context, client *Client) (*userInfo, error) {
 	}
 
 	aud, _, _ := claims.StringClaim("aud")
-	typ, _, _ := claims.StringClaim(OtsimoUserTypeClaim)
-	ug := "otsimo.com/user"
-	if typ == OtsimoAdminUserType {
-		ug = "otsimo.com/admin"
+	groups, _, _ := claims.StringsClaim("groups")
+	if len(groups) == 0 {
+		groups = []string{"otsimo.com/user"}
 	}
 	err = client.VerifyJWTForClientID(jwt, aud)
 	if err != nil {
@@ -77,8 +71,8 @@ func checkContext(ctx context.Context, client *Client) (*userInfo, error) {
 		return nil, err
 	}
 	return &userInfo{
-		UserID:    sub,
-		UserGroup: ug,
-		Token:     jwt,
+		UserID:     sub,
+		UserGroups: groups,
+		Token:      jwt,
 	}, nil
 }
