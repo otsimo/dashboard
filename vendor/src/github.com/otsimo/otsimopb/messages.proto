@@ -106,6 +106,7 @@ message ListGamesRequest{
     InnerState release_state = 1;
     int32 limit = 2;   
     int32 offset = 3;
+    string language = 4;
 }
 
 message ListItem {
@@ -118,6 +119,24 @@ message ListItem {
     string archive_format = 7;   
     int64 released_at = 8;
     repeated string languages = 9;
+}
+
+message ListItemWithTests {
+    message TestGroup{
+        string name = 1; 
+        int32 weight = 2;
+        string latest_version = 3;
+        ReleaseState latest_state = 4;
+        string production_version = 5;
+        string storage = 6;
+        string archive_format = 7;   
+        int64 released_at = 8;
+        repeated string languages = 9;
+    }
+    string game_id = 1;
+    string unique_name = 2;
+    int32 testing_version = 3;
+    repeated TestGroup groups = 4;
 }
 
 message GetLatestVersionsRequest{
@@ -161,4 +180,40 @@ message Response{
     string message = 2;
 }
 
-
+// A label selector operator is the set of operators that can be used in
+// a label selector requirement.
+enum LabelSelectorOperator{
+    In           =0;
+    NotIn        =1;
+    Exists       =2;
+    DoesNotExist =3;
+    Gt           =4;
+    Lt           =5;
+}
+// A label selector requirement is a selector that contains values, a key, and an operator
+// that relates the key and values.
+message LabelSelectorRequirement{
+    // key is the label key that the selector applies to.
+    string key = 1;
+    // operator represents a key's relationship to a set of values.
+    // Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+    LabelSelectorOperator operator = 2;
+    // values is an array of string values. If the operator is In or NotIn,
+    // the values array must be non-empty. If the operator is Exists or DoesNotExist,
+    // the values array must be empty. If the operator is Gt or Lt, the values
+    // array must have a single element, which will be interpreted as an integer.
+    repeated string values = 3;
+}
+// An empty label selector term matches all objects. A null label selector term
+// matches no objects.
+message LabelSelectorTerm{
+    // expressions is a list of label selector requirements. The requirements are ANDed.
+    repeated LabelSelectorRequirement expressions = 1;
+}
+// A label selector represents the union of the results of one or more label queries
+// over a set of labels; that is, it represents the OR of the selectors represented
+// by the labelSelectorTerms.
+message LabelSelector{
+    // terms is a list of label selector terms. The terms are ORed.
+    repeated LabelSelectorTerm terms = 1;
+}

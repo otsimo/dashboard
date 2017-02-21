@@ -1,0 +1,70 @@
+syntax = "proto3";
+package otsimo.abtest;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.goproto_getters_all) = false;
+
+option objc_class_prefix = "OTS";
+option go_package = "otsimopb";
+option java_package = "com.otsimo.grpc";
+option java_multiple_files = true;
+
+message ABTestGroup{
+    string name = 1;
+    string app_id = 2;
+    int32 weight = 3;
+    bool active = 4;
+}
+
+message ABDisableReq{
+    string name = 1;
+    string app_id = 2;
+}
+
+message ListTestGroupReq{
+    string app_id = 1;    
+}
+
+message AppTestingStatus{
+    int32 version = 1;
+    repeated ABTestGroup tests = 2;
+}
+
+message CheckUserStatusReq{
+    string user_id = 1;
+}
+
+message ChangeUserTestGroupReq{
+    string user_id = 1;
+
+    string app_id = 3;
+    //TestGroupName is empty for no testing group
+    string test_group_name = 4;
+}
+
+message UserTestGroupStatus{
+    message AppGroup{
+        string app_id = 1;
+        string test_group = 2;
+        int32 version = 3;
+    }
+    string user_id = 1;
+    repeated AppGroup apps = 2;
+}
+
+// ABTest Service
+service ABTest {
+    // CreateTestGroup
+    rpc CreateTestGroup(ABTestGroup)returns(AppTestingStatus);
+    // DisableTestGroup
+    rpc DisableTestGroup(ABDisableReq)returns(AppTestingStatus);
+    // ListTestGroupsForApp
+    rpc ListTestGroupsForApp(ListTestGroupReq)returns(AppTestingStatus);
+
+    rpc CheckUserStatus(CheckUserStatusReq) returns (UserTestGroupStatus);
+    rpc ChangeUserTestGroup(ChangeUserTestGroupReq) returns (UserTestGroupStatus);
+}

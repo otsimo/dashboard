@@ -22,16 +22,19 @@ message Address {
     string country_code = 5         [(gogoproto.moretags) = "bson:\"country_code,omitempty\""];
 }
 
-message Profile{
+message Profile {
     string id = 1                   [(gogoproto.moretags) = "bson:\"_id,omitempty\""];
     string email = 2                [(gogoproto.moretags) = "bson:\"email,omitempty\""];
     string first_name = 3           [(gogoproto.moretags) = "bson:\"first_name,omitempty\""];   
     string last_name = 4            [(gogoproto.moretags) = "bson:\"last_name,omitempty\""];
-    string language = 5             [(gogoproto.moretags) = "bson:\"language,omitempty\""];  
+    string language = 5             [(gogoproto.moretags) = "bson:\"language,omitempty\""];
     string mobile_phone = 6         [(gogoproto.moretags) = "bson:\"mobile_phone,omitempty\""]; 
     Address address = 7             [(gogoproto.moretags) = "bson:\"address,omitempty\""];
     int64 created_at = 8            [(gogoproto.moretags) = "bson:\"created_at,omitempty\""];
     int64 last_updated = 9          [(gogoproto.moretags) = "bson:\"last_updated,omitempty\""];
+    string locale = 10              [(gogoproto.moretags) = "bson:\"locale,omitempty\""];
+    int32 timezone = 11             [(gogoproto.moretags) = "bson:\"timezone,omitempty\""];
+    string country = 12             [(gogoproto.moretags) = "bson:\"country,omitempty\""];
 }
 
 message ChildGameEntry{
@@ -63,7 +66,8 @@ message Child{
     repeated ChildGameEntry games = 9   [(gogoproto.moretags) = "bson:\"games,omitempty\""];
     bool active = 10                    [(gogoproto.moretags) = "bson:\"active,omitempty\""];
     bool logged_in = 11                 [(gogoproto.moretags) = "bson:\"logged_in,omitempty\""];
-    bool sounds_enabled = 12            [(gogoproto.moretags) = "bson:\"sounds_enabled,omitempty\""];     
+    bool sounds_enabled = 12            [(gogoproto.moretags) = "bson:\"sounds_enabled,omitempty\""];   
+    string locale = 13                  [(gogoproto.moretags) = "bson:\"locale,omitempty\""];      
     int64 created_at = 15               [(gogoproto.moretags) = "bson:\"created_at,omitempty\""];
     int64 last_updated = 16             [(gogoproto.moretags) = "bson:\"last_updated,omitempty\""];
     map<string,string>child_info = 17   [(gogoproto.moretags) = "bson:\"child_info,omitempty\""];    
@@ -93,7 +97,7 @@ message GameMetadata{
     // InfoSlug is the id of the content which describes how to play this game
     string info_slug = 9            [(gogoproto.moretags) = "bson:\"info_slug,omitempty\""];
     //Assets are asset folders or paths for this language
-    repeated string assets = 10     [(gogoproto.moretags) = "bson:\"assets,omitempty\""];  
+    repeated string assets = 10     [(gogoproto.moretags) = "bson:\"assets,omitempty\""];
 }
 
 message GameManifest{
@@ -113,6 +117,8 @@ message GameManifest{
     repeated Author authors = 7             [(gogoproto.moretags) = "bson:\"authors\""];
     // Repository 
     string repository = 8                   [(gogoproto.moretags) = "bson:\"repository\""];
+    //SupportedOrientations are the orientations that can be used for this app
+    repeated string supported_orientations = 9 [(gogoproto.moretags) = "bson:\"supported_orientations,omitempty\""];
     //Metadata information for each languages
     repeated GameMetadata metadata = 13     [(gogoproto.moretags) = "bson:\"metadata,omitempty\""];
     //Exclude directories when building
@@ -127,6 +133,14 @@ message GameManifest{
     string default_language = 18            [(gogoproto.moretags) = "bson:\"default_language,omitempty\""];
     //Loading Background Color of the Game
     string loading_color = 19               [(gogoproto.moretags) = "bson:\"loading_color,omitempty\""];
+    //Capabilities are required host app features. The most basic capability is 'sandbox'.  
+    repeated string capabilities = 20       [(gogoproto.moretags) = "bson:\"capabilities,omitempty\""];
+    //AbTest determines whether or not this version is for ab testing
+    string ab_test = 21                     [(gogoproto.moretags) = "bson:\"ab_test\""];
+    //Labels are string key value pairs
+    map<string,string>labels = 22           [(gogoproto.moretags) = "bson:\"labels\""];
+    //ManifestVersion 
+    int32 manifest_version = 23;
 }
 
 message Game{
@@ -137,6 +151,7 @@ message Game{
     bool is_on_production = 5               [(gogoproto.moretags) = "bson:\"is_on_production,omitempty\""];  
     int64 created_at = 6                    [(gogoproto.moretags) = "bson:\"created_at,omitempty\""];
     int64 last_updated = 7                  [(gogoproto.moretags) = "bson:\"last_updated,omitempty\""];
+    map<string,string> labels = 8           [(gogoproto.moretags) = "bson:\"labels\""];    
 }
 
 message GameRelease {

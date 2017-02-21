@@ -186,7 +186,7 @@
 		{
 			"importpath": "github.com/golang/protobuf/proto",
 			"repository": "https://github.com/golang/protobuf",
-			"revision": "78b168c14fc28c8c711844d210f7ab845083e3b1",
+			"revision": "69b215d01a5606c843240eab4937eab3acee6530",
 			"branch": "master",
 			"path": "/proto"
 		},
@@ -229,7 +229,7 @@
 		{
 			"importpath": "github.com/otsimo/otsimopb",
 			"repository": "https://github.com/otsimo/otsimopb",
-			"revision": "7f513dcf6e98acf2e132d0de5c31d5cca5918c90",
+			"revision": "ceab420f533f0f3ad2e7ec0bdcf2c75ce93e0dd3",
 			"branch": "master"
 		},
 		{
@@ -316,7 +316,7 @@
 		{
 			"importpath": "google.golang.org/grpc",
 			"repository": "https://github.com/grpc/grpc-go",
-			"revision": "5c7e717663448ccc1c9ff4d9ce75cdb1cca28121",
+			"revision": "d0c32ee6a441117d49856d6120ca9552af413ee0",
 			"branch": "master"
 		},
 		{

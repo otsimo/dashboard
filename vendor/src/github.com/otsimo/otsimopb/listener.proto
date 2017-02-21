@@ -2,6 +2,8 @@ syntax = "proto3";
 package apipb;
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
+import "models.proto";
+
 option (gogoproto.marshaler_all) = true;
 option (gogoproto.sizer_all) = true;
 option (gogoproto.unmarshaler_all) = true;
@@ -42,6 +44,26 @@ message Point {
   int32 longitude = 2;
 }
 
+message Vector3{
+    float x = 1;
+    float y = 2;
+    float z = 3;    
+}
+
+message MotionData{
+    Vector3 gravity = 1;
+    Vector3 user_acceleration = 2;
+    Vector3 rotation_rate = 3;
+    Vector3 attitude = 4;
+}
+
+message GestureData{
+    float velocity = 1;
+    float width = 2;
+    float height = 3;
+    float duration = 4;
+}
+
 message Event{
     //UserId is profile id or child id 
     string user_id = 1;
@@ -65,6 +87,14 @@ message Event{
     bool is_resend = 10;
     //Payload is a json data
     bytes payload = 11;
+    //Age is child's age in month
+    int32 age = 12;
+    //Child gender
+    Gender gender = 13;
+    //MotionData keeps motion data of device
+    MotionData motion_data = 14;
+    //
+    GestureData gesture_data = 15;
 }
 
 message AppEventData{
@@ -78,6 +108,8 @@ message AppEventData{
     string event_id = 7;
     //IsResend is true if client is trying to send a failed event
     bool is_resend = 8;
+    //UserId is profile id or child id 
+    string user_id = 9;
 }
 
 message BatchEventData{
@@ -95,6 +127,10 @@ message BatchEventData{
     bool is_resend = 6;
     //Payload is a json data
     bytes payload = 7;
+    //MotionData keeps motion data of device
+    MotionData motion_data = 8;
+    //
+    GestureData gesture_data = 9;
 }
 
 message BatchEvent{
@@ -106,6 +142,10 @@ message BatchEvent{
     string app_id = 3;
     //Device is device information,
     DeviceInfo device = 4;
+    //Age is child's age in month    
+    int32 age = 6;
+    //Child Gender
+    Gender gender = 7;
     //Data is 
     repeated BatchEventData data = 5;
 }
@@ -119,4 +159,5 @@ message EventResponse{
 service ListenerService{
     rpc AppEvent(AppEventData) returns(EventResponse);
     rpc CustomEvent(stream Event) returns (stream EventResponse);
+    rpc BatchStream(stream BatchEvent) returns (stream EventResponse);    
 }

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export IMPORT_PATH=$GOPATH/src:.
-export GENERATOR="gogofaster_out"
+export GENERATOR="gofast_out"
 export OUTPUT_DIR="."
 export PROTO_FILES="./*.proto"
 

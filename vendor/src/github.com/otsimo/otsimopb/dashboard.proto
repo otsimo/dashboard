@@ -1,7 +1,7 @@
 syntax = "proto3";
 package otsimo;
 
-import "dataset.proto";
+import "datasetmodels.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
 option (gogoproto.marshaler_all) = true;
@@ -97,6 +97,8 @@ message Card {
         CardApplink applink = 12;
         CardAnalysis analysis = 13;
     }
+    string title = 14;
+    string subtitle = 15;
 }
 
 enum ChartType {

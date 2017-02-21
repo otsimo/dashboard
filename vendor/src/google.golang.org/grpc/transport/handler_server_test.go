@@ -300,7 +300,10 @@ func TestHandlerTransport_HandleStreams(t *testing.T) {
 		st.bodyw.Close() // no body
 		st.ht.WriteStatus(s, codes.OK, "")
 	}
-	st.ht.HandleStreams(func(s *Stream) { go handleStream(s) })
+	st.ht.HandleStreams(
+		func(s *Stream) { go handleStream(s) },
+		func(ctx context.Context, method string) context.Context { return ctx },
+	)
 	wantHeader := http.Header{
 		"Date":         nil,
 		"Content-Type": {"application/grpc"},
@@ -327,13 +330,16 @@ func handleStreamCloseBodyTest(t *testing.T, statusCode codes.Code, msg string) 
 	handleStream := func(s *Stream) {
 		st.ht.WriteStatus(s, statusCode, msg)
 	}
-	st.ht.HandleStreams(func(s *Stream) { go handleStream(s) })
+	st.ht.HandleStreams(
+		func(s *Stream) { go handleStream(s) },
+		func(ctx context.Context, method string) context.Context { return ctx },
+	)
 	wantHeader := http.Header{
 		"Date":         nil,
 		"Content-Type": {"application/grpc"},
 		"Trailer":      {"Grpc-Status", "Grpc-Message"},
 		"Grpc-Status":  {fmt.Sprint(uint32(statusCode))},
-		"Grpc-Message": {msg},
+		"Grpc-Message": {encodeGrpcMessage(msg)},
 	}
 	if !reflect.DeepEqual(st.rw.HeaderMap, wantHeader) {
 		t.Errorf("Header+Trailer mismatch.\n got: %#v\nwant: %#v", st.rw.HeaderMap, wantHeader)
@@ -375,13 +381,16 @@ func TestHandlerTransport_HandleStreams_Timeout(t *testing.T) {
 		}
 		ht.WriteStatus(s, codes.DeadlineExceeded, "too slow")
 	}
-	ht.HandleStreams(func(s *Stream) { go runStream(s) })
+	ht.HandleStreams(
+		func(s *Stream) { go runStream(s) },
+		func(ctx context.Context, method string) context.Context { return ctx },
+	)
 	wantHeader := http.Header{
 		"Date":         nil,
 		"Content-Type": {"application/grpc"},
 		"Trailer":      {"Grpc-Status", "Grpc-Message"},
 		"Grpc-Status":  {"4"},
-		"Grpc-Message": {"too slow"},
+		"Grpc-Message": {encodeGrpcMessage("too slow")},
 	}
 	if !reflect.DeepEqual(rw.HeaderMap, wantHeader) {
 		t.Errorf("Header+Trailer Map mismatch.\n got: %#v\nwant: %#v", rw.HeaderMap, wantHeader)

@@ -33,4 +33,14 @@ service ApiService {
     rpc GetDisabledChildren(GetChildrenFromProfileRequest)returns(GetChildrenFromProfileResponse);
     rpc SoundEnable(SoundEnableRequest) returns (Response);
     rpc UpdateGameIndices(UpdateIndecesRequest) returns (Child);
+    rpc Statistics(StatisticsReq) returns (StatisticsRes);
+}
+
+message StatisticsReq{
+    int64 time_from = 1;
+    int64 time_to = 2;
+}
+
+message StatisticsRes{
+    map<string,int64> statistics = 1;
 }

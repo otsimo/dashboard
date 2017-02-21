@@ -26,6 +26,7 @@ message Content {
     repeated string keywords = 11;
     int32 category_weight = 12;
     bytes markdown = 13;
+    map<string,string> params = 14;
 }
 
 //Request-Response

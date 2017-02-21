@@ -1,0 +1,53 @@
+syntax = "proto3";
+package otsimo;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "messages.proto";
+
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.goproto_getters_all) = false;
+option (gogoproto.goproto_unrecognized_all) = true;
+//option (gogoproto.goproto_enum_prefix_all) = false;
+
+option go_package = "otsimopb";
+option java_package = "com.otsimo.grpc";
+option java_multiple_files = true;
+option java_outer_classname= "FileProto";
+
+service File {
+    rpc StoreSmall(StoreReq) returns (StoreRes);
+    rpc RequestStoreBig(UploadReq) returns (UploadRes);
+    rpc Lookup(LookupReq) returns (LookupRes);
+}
+
+message FileMetadata{
+    string name = 1;
+    map<string,string> labels = 2;
+    string content_type = 3;
+    string content_encoding = 4;
+}
+
+message UploadReq{
+    FileMetadata metadata = 1;
+    bytes data = 2;
+}
+
+message UploadRes{
+    string upload_token = 1;
+}
+
+message StoreReq{
+    FileMetadata metadata = 1;
+}
+
+message StoreRes{
+}
+
+message LookupReq{
+    apipb.LabelSelector selector = 1;
+}
+
+message LookupRes{
+}
