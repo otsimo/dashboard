@@ -35,6 +35,7 @@ message Profile {
     string locale = 10              [(gogoproto.moretags) = "bson:\"locale,omitempty\""];
     int32 timezone = 11             [(gogoproto.moretags) = "bson:\"timezone,omitempty\""];
     string country = 12             [(gogoproto.moretags) = "bson:\"country,omitempty\""];
+    map<string,string> labels = 13  [(gogoproto.moretags) = "bson:\"labels\""];
 }
 
 message ChildGameEntry{

@@ -147,6 +147,8 @@
 		CategoryReq
 		CategoryListReq
 		CategoryList
+		GetAllGamesReq
+		GetAllGamesRes
 		GamePlayingRequest
 		GamePlayingReply
 		EmitRequest

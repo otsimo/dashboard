@@ -8,10 +8,9 @@ import (
 	"errors"
 	"io/ioutil"
 	"net"
+	"net/http"
 	"path/filepath"
 	"time"
-
-	"net/http"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/ghodss/yaml"
